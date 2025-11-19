@@ -1,0 +1,169 @@
+\documentclass{syx7}
+
+% ============================================================================
+% PAQUETES NECESARIOS
+% ============================================================================
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amsthm}
+\usepackage{caption}
+\usepackage{color}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{epsfig}
+\usepackage{epstopdf}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{amssymb}
+
+% Configuración de idioma
+\usepackage[spanish]{babel}
+
+% Configuración de fuentes (para XeLaTeX)
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\setmainfont{Latin Modern Roman}
+\setmathfont{Latin Modern Math}
+
+% ============================================================================
+% CONFIGURACIÓN DE GEOMETRÍA
+% ============================================================================
+\geometry{
+	a4paper,
+	left=25mm,
+	right=20mm,
+	top=25mm,
+	bottom=25mm
+}
+
+\setlength{\abstractwidth}{\textwidth}
+\setlength{\headheight}{59pt}
+
+% ============================================================================
+% CONFIGURACIÓN DE BIBLIOGRAFÍA
+% ============================================================================
+\usepackage[backend=bibtex,style=ieee,natbib=true]{biblatex}
+\defbibheading{bibliography}{\section*{Referencias}}
+\addbibresource{biblio.bib}  % Cambie el nombre del archivo .bib si es necesario
+
+\usepackage{etoolbox}
+\patchcmd{\bibsetup}{\begingroup}{\begingroup\let\clearpage\relax}{}{}
+
+% ============================================================================
+% CONFIGURACIÓN DE CÓDIGO PYTHON (OPCIONAL)
+% ============================================================================
+\setpythonpath{./}
+
+% ============================================================================
+% METADATOS DEL DOCUMENTO
+% ============================================================================
+% Fechas de recepción y aceptación
+\receiveddate{01-ene-2024}
+\accepteddate{01-dic-2024}
+
+% Título completo y título corto para el encabezado
+\title{Título de su artículo científico aquí}
+\shorttitle{Título corto para encabezado}
+
+% Palabras clave separadas por comas
+\keywords{Palabra clave 1, Palabra clave 2, Palabra clave 3, Palabra clave 4}
+
+% ============================================================================
+% DOCUMENTO
+% ============================================================================
+\begin{document}
+
+% ============================================================================
+% AUTORES Y CORREOS
+% ============================================================================
+% Agregue tantos autores como necesite usando el formato:
+% \author{Nombre Completo del Autor}
+% \email{correo@institucion.edu}
+
+\title{Título de su artículo científico aquí}
+\author{Primer Autor*}
+\email{autor1@institucion.edu}
+\author{Segundo Autor}
+\email{autor2@institucion.edu}
+
+\vspace*{-1 \baselineskip}
+
+\maketitle
+
+% ============================================================================
+% RESUMEN
+% ============================================================================
+\begin{abstract}
+	Escriba aquí el resumen de su artículo. El resumen debe ser una descripción concisa y precisa del contenido del artículo, incluyendo los objetivos, la metodología empleada, los resultados principales y las conclusiones más relevantes. Se recomienda que el resumen tenga entre 150 y 250 palabras.
+\end{abstract}
+
+% ============================================================================
+% INTRODUCCIÓN
+% ============================================================================
+\section{Introducción}
+Escriba aquí la introducción de su artículo. La introducción debe presentar el contexto del problema, la motivación del trabajo, los objetivos y la estructura del documento.
+
+Puede citar referencias bibliográficas usando \texttt{\textbackslash cite\{clave\_referencia\}} como en este ejemplo: \cite{ejemplo_referencia}.
+
+% ============================================================================
+% DESARROLLO (SECCIONES PRINCIPALES)
+% ============================================================================
+\section{Marco Teórico}
+Desarrolle aquí el marco teórico de su investigación.
+
+\subsection{Subsección de ejemplo}
+Puede crear subsecciones según sea necesario.
+
+\section{Materiales y Métodos}
+Describa aquí los materiales y métodos utilizados en su investigación.
+
+% Ejemplo de figura
+\begin{figure}[htb!]
+	\centering
+	% Descomente la siguiente línea y ajuste la ruta de la imagen
+	% \includegraphics[width=0.5\textwidth]{img/nombre_imagen.png}
+	\caption{Descripción de la figura}
+	\label{fig:ejemplo}
+\end{figure}
+
+% Ejemplo de tabla
+\begin{table}[htb!]
+	\caption{Título de la tabla}
+	\label{tab:ejemplo}
+	\centering
+	\begin{tabular}{>{\centering\arraybackslash}p{4cm}>{\centering\arraybackslash}p{4cm}}
+		\toprule
+		Columna 1 & Columna 2 \\
+		\midrule
+		Dato 1 & Dato 2 \\
+		Dato 3 & Dato 4 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+% Ejemplo de ecuación
+\begin{equation}
+	E = mc^2
+	\label{eq:ejemplo}
+\end{equation}
+
+\section{Resultados}
+Presente aquí los resultados obtenidos en su investigación. Puede hacer referencia a figuras, tablas y ecuaciones usando \texttt{\textbackslash ref\{etiqueta\}}, por ejemplo: ver Figura \ref{fig:ejemplo}, Tabla \ref{tab:ejemplo} o Ecuación \ref{eq:ejemplo}.
+
+\section{Discusión}
+Desarrolle aquí la discusión de los resultados obtenidos.
+
+\section{Conclusiones}
+Presente aquí las conclusiones de su trabajo de investigación.
+
+% ============================================================================
+% CORREOS ELECTRÓNICOS DE LOS AUTORES
+% ============================================================================
+\printauthoremails
+
+% ============================================================================
+% BIBLIOGRAFÍA
+% ============================================================================
+\pretocmd{\printbibliography}{\vspace{1em}}{}{}
+\printbibliography
+
+\end{document}

@@ -1,0 +1,58 @@
+================================================================================
+  PLANTILLA PARA ARTÍCULOS - INFORMATICAE ABSTRACTA
+================================================================================
+
+📁 ESTRUCTURA DE LA PLANTILLA:
+
+  Archivos principales:
+  ✓ template.tex              → Archivo principal (edite este archivo)
+  ✓ syx7.cls                  → Clase del documento (NO MODIFICAR)
+  ✓ biblio.bib                → Sus referencias bibliográficas
+  ✓ template.pdf              → PDF de ejemplo
+
+  Documentación:
+  ✓ README_PLANTILLA.md       → Documentación completa
+  ✓ GUIA_RAPIDA.md            → Guía rápida de uso
+  ✓ compilar.bat              → Script de compilación automática
+
+  Archivos de ejemplo:
+  ✓ biblio_template.bib       → Ejemplos de referencias
+  ✓ biblio_ejemplo_artx.bib   → Referencias del artículo original
+
+  Carpetas:
+  ✓ fuentes/                  → Logo de la revista (requerido)
+  ✓ img/                      → Sus imágenes (PNG, JPG, PDF, EPS)
+
+================================================================================
+
+🚀 INICIO RÁPIDO:
+
+  1. Edite template.tex con su contenido
+
+  2. Compile el documento:
+
+     Opción A (Windows):
+       compilar.bat template
+
+     Opción B (Manual):
+       xelatex template.tex
+       bibtex template
+       xelatex template.tex
+       xelatex template.tex
+
+  3. El PDF se generará como template.pdf
+
+================================================================================
+
+📖 MÁS INFORMACIÓN:
+
+  - Lea README_PLANTILLA.md para instrucciones completas
+  - Lea GUIA_RAPIDA.md para referencia rápida
+  - Vea biblio_template.bib para ejemplos de referencias
+
+================================================================================
+
+💡 CONSEJO: Guarde su trabajo con un nombre diferente (ej: mi_articulo.tex)
+           para preservar template.tex como referencia.
+
+================================================================================
