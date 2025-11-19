@@ -9,7 +9,7 @@ Este script demuestra cómo:
 2. Obtener información del sistema
 3. Cerrar HYSYS de forma segura
 
-Autor: Tutorial ASPEN + Python
+Autor: Salas-García, et. al
 Fecha: 2025-01-15
 """
 
