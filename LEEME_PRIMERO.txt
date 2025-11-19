@@ -1,0 +1,36 @@
+═══════════════════════════════════════════════════════════════
+   TUTORIAL ASPEN HYSYS + PYTHON - COPIADOA TU COMPUTADORA
+═══════════════════════════════════════════════════════════════
+
+✓ UBICACIÓN: C:\aspenTuto\tutorialAspen\
+
+✓ ESTADO: Estructura creada, archivos en proceso de copia
+
+✓ QUÉ CONTIENE:
+   - 8 prácticas progresivas (básico → avanzado)
+   - Cada práctica: README.md + script.py
+   - Documentación completa
+
+✓ ESTRUCTURA:
+   tutorialAspen\
+   ├── README.md (principal)
+   ├── practica1\ (Conexión básica)
+   ├── practica2\ (Componentes)
+   ├── practica3\ (Corrientes)
+   ├── practica4\ (Mixer)
+   ├── practica5\ (Reactor CSTR)
+   ├── practica6\ (Cinética)
+   ├── practica7\ (Batch vs CSTR)
+   └── practica8\ (Planta completa)
+
+✓ CÓMO USAR:
+   1. cd C:\aspenTuto\tutorialAspen\practica1
+   2. Leer README.md
+   3. Ejecutar: python script.py
+
+✓ PRÓXIMOS PASOS:
+   Claude está copiando todos los archivos ahora...
+   Espera a que termine (aparecerá mensaje de confirmación)
+
+═══════════════════════════════════════════════════════════════
+Fecha: 2025-01-15

@@ -1,0 +1,173 @@
+═══════════════════════════════════════════════════════════════
+   TUTORIAL ASPEN HYSYS + PYTHON - INSTRUCCIONES COMPLETAS
+═══════════════════════════════════════════════════════════════
+
+✓ UBICACION: C:\aspenTuto\tutorialAspen\
+
+✓ ARCHIVOS COPIADOS EXITOSAMENTE:
+   - README.md principal
+   - LEEME_PRIMERO.txt (resumen ejecutivo)
+   - 8 practicas completas (practica1/ a practica8/)
+   - Cada practica tiene: README.md + script.py
+
+═══════════════════════════════════════════════════════════════
+COMO USAR ESTE TUTORIAL
+═══════════════════════════════════════════════════════════════
+
+1. REVISAR CONTENIDO:
+
+   cd C:\aspenTuto\tutorialAspen
+   dir /s
+
+   Deberias ver:
+   - README.md (introduccion)
+   - practica1\ a practica8\
+   - 18 archivos en total
+
+2. EMPEZAR CON PRACTICA 1:
+
+   cd practica1
+   type README.md       (leer teoria)
+   python script.py     (ejecutar codigo)
+
+3. CONTINUAR SECUENCIALMENTE:
+
+   Practica 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
+
+4. REQUISITOS:
+
+   - Python 3.7+ instalado
+   - ASPEN HYSYS con licencia activa
+   - pip install pywin32
+
+═══════════════════════════════════════════════════════════════
+ESTRUCTURA DE CADA PRACTICA
+═══════════════════════════════════════════════════════════════
+
+practicaN\
+├── README.md   ← Teoria, conceptos, ejercicios
+└── script.py   ← Codigo Python funcional
+
+README contiene:
+- Conceptos teoricos
+- Objetivos de aprendizaje
+- Ejercicios guiados
+- Retos adicionales
+- Preguntas de reflexion
+
+script.py contiene:
+- Codigo completo y funcional
+- Comentarios explicativos
+- Manejo de errores
+- Resultados en consola
+
+═══════════════════════════════════════════════════════════════
+CREAR REPOSITORIO EN GITHUB (OPCIONAL)
+═══════════════════════════════════════════════════════════════
+
+Si quieres publicar en GitHub:
+
+1. Inicializar Git:
+
+   cd C:\aspenTuto\tutorialAspen
+   git init
+   git add .
+   git commit -m "Tutorial completo ASPEN HYSYS + Python"
+
+2. Crear repo en GitHub:
+
+   - Ve a: https://github.com/new
+   - Repository name: tutorialAspen
+   - Description: Tutorial progresivo ASPEN HYSYS + Python
+   - Public/Private: (tu eleccion)
+   - NO marcar "Add README"
+   - Click "Create repository"
+
+3. Conectar y hacer push:
+
+   git remote add origin https://github.com/TU_USUARIO/tutorialAspen.git
+   git branch -M main
+   git push -u origin main
+
+   (Necesitaras tu usuario y Personal Access Token)
+
+═══════════════════════════════════════════════════════════════
+CONTENIDO DE LAS 8 PRACTICAS
+═══════════════════════════════════════════════════════════════
+
+Practica 1 (*):     Conexion basica con HYSYS (30 min)
+Practica 2 (*):     Componentes y paquetes (45 min)
+Practica 3 (**):    Corrientes de materia (1 hora)
+Practica 4 (**):    Operacion unitaria - Mixer (1 hora)
+Practica 5 (***):   Reactor CSTR sin cinetica (1.5 horas)
+Practica 6 (****):  Reactor con Arrhenius (2 horas)
+Practica 7 (****):  Batch vs Continuo (2 horas)
+Practica 8 (*****): Planta completa biodiesel (3 horas)
+
+TOTAL: ~10.5 horas de aprendizaje intensivo
+
+═══════════════════════════════════════════════════════════════
+PROYECTO RELACIONADO
+═══════════════════════════════════════════════════════════════
+
+Este tutorial complementa el proyecto:
+
+   C:\aspenTuto\mod_esterificacion\
+
+El proyecto principal tiene:
+- Sistema completo de modelado
+- Integracion HYSYS-Python-CFD
+- Optimizacion avanzada
+- Documentacion LaTeX
+
+FLUJO RECOMENDADO:
+
+1. tutorialAspen (ESTE) ← Aprender fundamentos
+2. mod_esterificacion   ← Usar sistema completo
+
+═══════════════════════════════════════════════════════════════
+VERIFICAR INSTALACION
+═══════════════════════════════════════════════════════════════
+
+Prueba que todo funciona:
+
+1. Abrir terminal en: C:\aspenTuto\tutorialAspen\practica1
+2. Ejecutar: python script.py
+3. Deberia:
+   - Abrir HYSYS
+   - Mostrar version en consola
+   - Cerrar HYSYS automaticamente
+
+Si hay error:
+   - Verificar que HYSYS este instalado
+   - Verificar licencia activa
+   - Instalar: pip install pywin32
+
+═══════════════════════════════════════════════════════════════
+SOPORTE Y CONTRIBUCIONES
+═══════════════════════════════════════════════════════════════
+
+- Tutorial diseñado para estudiantes de posgrado
+- Material libre para uso educativo
+- Contribuciones y mejoras bienvenidas
+
+Para dudas o mejoras:
+   - Crea un issue en GitHub (si publicas ahi)
+   - Adapta a tu caso especifico
+   - Comparte con tus colegas
+
+═══════════════════════════════════════════════════════════════
+PROXIMOS PASOS
+═══════════════════════════════════════════════════════════════
+
+✓ TODO LISTO PARA EMPEZAR
+
+1. cd practica1
+2. type README.md
+3. python script.py
+4. ¡Empieza tu aprendizaje!
+
+═══════════════════════════════════════════════════════════════
+Fecha: 2025-01-15
+Version: 1.0
+═══════════════════════════════════════════════════════════════
