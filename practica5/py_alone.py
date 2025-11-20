@@ -11,6 +11,7 @@ Reacción: Methanol + Triglicérido → Biodiesel + Glicerol
 
 Autor: Salas-García, et. al
 Fecha: 2025-01-15
+import os
 """
 
 import numpy as np
@@ -161,7 +162,8 @@ def main():
         }
     }
 
-    output_file = '/home/user/aspen_python_API/practica5/resultados_python.json'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_file = os.path.join(script_dir, 'resultados_python.json')
     with open(output_file, 'w') as f:
         json.dump(results, f, indent=2)
 

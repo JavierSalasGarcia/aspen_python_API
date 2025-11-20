@@ -11,6 +11,7 @@ Etapas:
 1. Mezclador
 2. Reactor (conversión fija)
 3. Separador primario
+import os
 4. Lavado
 5. Secado
 
@@ -302,7 +303,8 @@ def main():
         }
     }
 
-    output_file = '/home/user/aspen_python_API/practica8/resultados_python.json'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_file = os.path.join(script_dir, 'resultados_python.json')
     with open(output_file, 'w') as f:
         json.dump(results, f, indent=2)
 

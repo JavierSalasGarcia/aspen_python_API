@@ -11,6 +11,7 @@ y librerías instaladas.
 Autor: Salas-García, et. al
 Fecha: 2025-01-15
 """
+import os
 
 import sys
 import platform
