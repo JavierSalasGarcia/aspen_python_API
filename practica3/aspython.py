@@ -44,20 +44,16 @@ def main():
         streams = flowsheet.MaterialStreams
         stream1 = streams.Add("Metanol_Entrada")
 
-        # Asignar FluidPackage a la corriente (asegura que sepa qué componentes esperar)
+        # Asignar FluidPackage a la corriente
         stream1.FluidPackage = fluid_pkg
 
-        # Especificar composición PRIMERO (antes de T/P/F)
-        # Values devuelve tupla -> convertir a lista -> modificar -> volver a tupla
-        current_values = stream1.ComponentMolarFraction.Values
-        comp_frac_list = list(current_values)
-        comp_frac_list[0] = 1.0  # 100% Methanol
-        stream1.ComponentMolarFraction.Values = tuple(comp_frac_list)
-
-        # Ahora especificar condiciones termodinámicas (después de composición)
+        # Especificar condiciones termodinámicas
         stream1.TemperatureValue = 25 + 273.15  # K
         stream1.PressureValue = 101.325          # kPa
-        stream1.MolarFlowValue = 100.0           # kgmole/h
+
+        # Establecer composición usando flujos molares de componentes
+        # En lugar de fracciones molares, establecer flujo de cada componente
+        stream1.ComponentMolarFlow.SetValue(100.0, 0)  # 100 kgmole/h de Methanol (índice 0)
 
         # Esperar cálculos
         time.sleep(2)
