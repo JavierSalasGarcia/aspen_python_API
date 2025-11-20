@@ -16,13 +16,13 @@ def main():
         case = hysys.SimulationCases.Add()
         print("\n[1/4] HYSYS iniciado y caso creado")
 
-        # Acceder al Flowsheet
-        print("   → Accediendo al Flowsheet...")
-        flowsheet = case.Flowsheet
+        # Acceder al Basis Manager y crear/obtener FluidPackage
+        print("   → Accediendo al Basis Manager...")
+        basis = case.BasisManager
 
-        # Acceder al FluidPackage
-        print("   → Accediendo al FluidPackage...")
-        fluid_pkg = flowsheet.FluidPackage
+        # Agregar un nuevo FluidPackage
+        print("   → Creando FluidPackage...")
+        fluid_pkg = basis.AddFluidPackage()
 
         # Acceder a Components
         print("   → Accediendo a Components...")
@@ -38,8 +38,18 @@ def main():
         print("   ✓ Water agregado")
 
         print("\n[3/4] Configurando paquete termodinámico...")
-        fluid_pkg.PropertyPackage = "NRTL"
-        print("   ✓ Paquete configurado: NRTL")
+        # Primero configurar el property package
+        try:
+            fluid_pkg.PropertyPackage = "NRTL"
+            print("   ✓ Paquete configurado: NRTL")
+        except:
+            # Si NRTL no está disponible, usar Peng-Robinson
+            fluid_pkg.PropertyPackage = "Peng-Robinson"
+            print("   ✓ Paquete configurado: Peng-Robinson")
+
+        # Activar el FluidPackage en el Flowsheet
+        print("   → Activando FluidPackage en Flowsheet...")
+        case.Flowsheet.FluidPackage = fluid_pkg
 
         # Extraer propiedades
         print("\n[4/4] Extrayendo propiedades de componentes...")
