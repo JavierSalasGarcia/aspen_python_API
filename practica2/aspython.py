@@ -70,9 +70,14 @@ def main():
             print(f"\n   Componente: {comp.Name}")
 
             try:
-                print(f"     Tc = {comp.CriticalTemperature:.2f} K")
-                print(f"     Pc = {comp.CriticalPressure:.2f} kPa")
-                print(f"     MW = {comp.MolecularWeight:.2f} g/mol")
+                # Convertir valores COM a float antes de formatear
+                tc = float(comp.CriticalTemperature)
+                pc = float(comp.CriticalPressure)
+                mw = float(comp.MolecularWeight)
+
+                print(f"     Tc = {tc:.2f} K")
+                print(f"     Pc = {pc:.2f} kPa")
+                print(f"     MW = {mw:.2f} g/mol")
             except Exception as prop_err:
                 print(f"     ⚠ Error leyendo propiedades: {prop_err}")
 
