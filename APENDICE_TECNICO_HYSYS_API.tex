@@ -351,9 +351,11 @@ stream1 = streams.Add("Entrada_Metanol")
 
 # PASO 1: Especificar composicion PRIMERO (OBLIGATORIO)
 # HYSYS necesita saber que componentes estan presentes antes de T/P/F
-comp_frac = stream1.ComponentMolarFraction.Values
-comp_frac[0] = 1.0  # 100% primer componente (Methanol)
-stream1.ComponentMolarFraction.Values = comp_frac
+# ComponentMolarFraction.Values devuelve TUPLA (inmutable)
+comp_frac_tuple = stream1.ComponentMolarFraction.Values
+comp_frac = list(comp_frac_tuple)  # Convertir a lista
+comp_frac[0] = 1.0  # 100% Methanol (indice 0)
+stream1.ComponentMolarFraction.Values = comp_frac  # Reasignar
 
 # PASO 2: Especificar condiciones termodinamicas (DESPUES de composicion)
 stream1.TemperatureValue = 25 + 273.15  # K
@@ -374,6 +376,9 @@ rho = stream1.DensityValue.GetValue()  # Calculada
     \\Causa error: \texttt{'tuple' object is not callable}
     \item NO establecer T/P/F ANTES de la composicion
     \\Causa error COM -2147352567: \texttt{'Ocurrio una excepcion'}
+    \item NO modificar directamente la tupla: \texttt{comp\_frac[0] = 1.0}
+    \\Causa error: \texttt{'tuple' object does not support item assignment}
+    \\Solucion: Convertir a lista primero con \texttt{list()}
 \end{enumerate}
 \end{warningbox}
 
@@ -381,7 +386,8 @@ rho = stream1.DensityValue.GetValue()  # Calculada
 \textbf{Hallazgos:}
 \begin{itemize}
     \item \textbf{ORDEN CRITICO:} Composicion primero, luego T/P/F
-    \item \textbf{Composicion:} Usar \texttt{ComponentMolarFraction.Values} (array)
+    \item \textbf{Composicion:} \texttt{ComponentMolarFraction.Values} devuelve TUPLA
+    \item \textbf{Modificacion:} Convertir tupla a lista con \texttt{list()}, modificar, reasignar
     \item \textbf{Escritura T/P/F:} Asignacion directa sin \texttt{.SetValue()}
     \item \textbf{Lectura:} Requiere \texttt{.GetValue()} para obtener \texttt{float}
     \item \textbf{Indices:} El array sigue el orden de agregacion de componentes
@@ -523,7 +529,8 @@ def main():
         stream1 = streams.Add("S1")
 
         # IMPORTANTE: Composicion PRIMERO, antes de T/P/F
-        comp_frac = stream1.ComponentMolarFraction.Values
+        # Values devuelve tupla, convertir a lista
+        comp_frac = list(stream1.ComponentMolarFraction.Values)
         comp_frac[0] = 1.0  # 100% Methanol
         stream1.ComponentMolarFraction.Values = comp_frac
 
