@@ -11,11 +11,13 @@ def main():
     try:
         hysys = win32.Dispatch('HYSYS.Application')
         hysys.Visible = True
-        case = hysys.ActiveDocument
-        print("\n[1/4] HYSYS iniciado")
+
+        # Crear nuevo caso de simulación
+        case = hysys.SimulationCases.Add()
+        print("\n[1/4] HYSYS iniciado y caso creado")
 
         # Configurar componentes
-        fluid_pkg = case.FluidPackage
+        fluid_pkg = case.Flowsheet.FluidPackage
         components = fluid_pkg.Components
 
         components.Add("Methanol")

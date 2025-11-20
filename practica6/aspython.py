@@ -31,8 +31,10 @@ def main():
         print("\n[1/9] Iniciando ASPEN HYSYS...")
         hysys = win32.Dispatch('HYSYS.Application')
         hysys.Visible = True
-        case = hysys.ActiveDocument
-        print("   ✓ HYSYS iniciado")
+
+        # Crear nuevo caso de simulación
+        case = hysys.SimulationCases.Add()
+        print("   ✓ HYSYS iniciado y caso creado")
 
         # PASO 2: Configurar componentes
         print("\n[2/9] Configurando componentes...")
