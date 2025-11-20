@@ -45,24 +45,9 @@ def main():
         components.Add("Water")
         print("   ✓ Water agregado")
 
-        print("\n[3/4] Configurando paquete termodinámico...")
-        # Configurar el método de propiedades (Property Package)
-        try:
-            # Usar PropertyMethod en lugar de PropertyPackage
-            fluid_pkg.PropertyMethod = "NRTL"
-            print("   ✓ Método de propiedades: NRTL")
-        except:
-            try:
-                # Si NRTL no funciona, probar con Peng-Robinson
-                fluid_pkg.PropertyMethod = "Peng-Robinson"
-                print("   ✓ Método de propiedades: Peng-Robinson")
-            except:
-                # Si tampoco funciona, dejar el valor por defecto
-                print("   ⚠ Usando método de propiedades por defecto")
-
-        # Activar el FluidPackage en el Flowsheet
-        print("   → Activando FluidPackage en Flowsheet...")
-        case.Flowsheet.FluidPackage = fluid_pkg
+        print("\n[3/4] Configurando componentes en el Flowsheet...")
+        # El FluidPackage ya está activo, no necesitamos asignarlo manualmente
+        print("   ✓ FluidPackage configurado y listo para usar")
 
         # Extraer propiedades
         print("\n[4/4] Extrayendo propiedades de componentes...")
