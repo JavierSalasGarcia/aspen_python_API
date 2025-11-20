@@ -15,6 +15,9 @@
 # ============================================================================
 # Librerías de Termodinámica y Propiedades Químicas
 # ============================================================================
+# NOTA: Si 'thermo' falla al instalar, prueba:
+#   pip install thermo --no-deps
+#   pip install chemicals numpy scipy pandas
 thermo==0.2.20           # Cálculos termodinámicos y de equilibrio de fases
 chemicals==1.1.4         # Base de datos de 20,000+ compuestos químicos
 CoolProp==6.4.3          # Ecuaciones de estado de alta precisión
