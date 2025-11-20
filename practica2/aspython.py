@@ -38,12 +38,23 @@ def main():
 
         print("\n[2/4] Agregando componentes...")
         print("   → Agregando Methanol...")
-        components.Add("Methanol")
-        print("   ✓ Methanol agregado")
+        comp1 = components.Add("Methanol")
+        # Verificar que se agregó
+        if comp1 is not None:
+            print(f"   ✓ Methanol agregado (ID: {comp1.ComponentName})")
+        else:
+            print("   ⚠ Methanol no se agregó correctamente")
 
         print("   → Agregando Water...")
-        components.Add("Water")
-        print("   ✓ Water agregado")
+        comp2 = components.Add("Water")
+        # Verificar que se agregó
+        if comp2 is not None:
+            print(f"   ✓ Water agregado (ID: {comp2.ComponentName})")
+        else:
+            print("   ⚠ Water no se agregó correctamente")
+
+        # Verificar conteo inmediatamente después de agregar
+        print(f"   → Componentes en lista: {components.Count}")
 
         print("\n[3/4] Configurando componentes en el Flowsheet...")
         # El FluidPackage ya está activo, no necesitamos asignarlo manualmente
