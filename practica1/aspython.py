@@ -15,6 +15,7 @@ Fecha: 2025-01-15
 
 import win32com.client as win32
 import time
+import sys
 
 def main():
     """Función principal"""
@@ -37,11 +38,44 @@ def main():
 
     except Exception as e:
         print(f"   ✗ ERROR: No se pudo iniciar HYSYS")
+        print(f"   Tipo de error: {type(e).__name__}")
         print(f"   Detalles: {e}")
-        print("\n   Posibles causas:")
-        print("   - HYSYS no está instalado")
-        print("   - No hay licencia activa")
-        print("   - pywin32 no está instalado (pip install pywin32)")
+
+        # Diagnóstico específico según el tipo de error
+        if hasattr(e, 'args') and len(e.args) > 0:
+            error_code = e.args[0] if isinstance(e.args[0], int) else None
+
+            if error_code == -2147221021:
+                print("\n   ❌ ERROR IDENTIFICADO: HYSYS no está registrado en el sistema")
+                print("\n   🔧 SOLUCIONES:")
+                print("   1. Verifica que HYSYS esté instalado correctamente")
+                print("   2. Abre HYSYS manualmente como administrador (clic derecho → Ejecutar como administrador)")
+                print("   3. Verifica la compatibilidad de arquitectura:")
+                arch = "64-bit" if sys.maxsize > 2**32 else "32-bit"
+                print(f"      • Tu Python es: {arch}")
+                print(f"      • Tu HYSYS debe ser: {arch}")
+                print("   4. Ejecuta el script de diagnóstico:")
+                print("      python diagnostico_hysys.py")
+            elif error_code == -2147221005:
+                print("\n   ❌ ERROR: Clase COM no registrada")
+                print("\n   🔧 SOLUCIONES:")
+                print("   1. Reinstala o repara HYSYS")
+                print("   2. Verifica que tienes permisos de administrador")
+            else:
+                print(f"\n   Código de error COM: {error_code}")
+
+        print("\n   📋 CAUSAS COMUNES:")
+        print("   • HYSYS no está instalado")
+        print("   • Incompatibilidad Python 32-bit vs HYSYS 64-bit (o viceversa)")
+        print("   • HYSYS no se ha ejecutado nunca como administrador")
+        print("   • No hay licencia activa de HYSYS")
+        print("   • pywin32 no está instalado (pip install pywin32)")
+
+        print("\n   💡 ALTERNATIVA: Método con HYSYS ya abierto")
+        print("   Si HYSYS funciona manualmente, prueba:")
+        print("   1. Abre HYSYS manualmente")
+        print("   2. Ejecuta aspython_activeobject.py")
+
         return
 
     # PASO 2: Obtener información de HYSYS
