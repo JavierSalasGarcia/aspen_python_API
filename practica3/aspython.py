@@ -42,12 +42,12 @@ def main():
 
         # IMPORTANTE: Especificar composición PRIMERO (antes de T/P/F)
         # HYSYS necesita saber qué componentes están presentes antes de calcular propiedades
-        # NOTA: ComponentMolarFractionValue NO es un método callable con 2 params
-        comp_frac = stream1.ComponentMolarFraction.Values
-        # El array tiene tantos elementos como componentes haya en la lista
-        # En este caso solo tenemos Methanol (índice 0)
-        comp_frac[0] = 1.0  # 100% Methanol
-        stream1.ComponentMolarFraction.Values = comp_frac
+        # ComponentMolarFraction.Values devuelve una TUPLA (inmutable)
+        # Debemos convertirla a lista, modificarla, y reasignarla
+        comp_frac_tuple = stream1.ComponentMolarFraction.Values
+        comp_frac = list(comp_frac_tuple)  # Convertir tupla a lista
+        comp_frac[0] = 1.0  # 100% Methanol (índice 0)
+        stream1.ComponentMolarFraction.Values = comp_frac  # Reasignar lista
 
         # Ahora especificar condiciones termodinámicas (después de composición)
         stream1.TemperatureValue = 25 + 273.15  # K
