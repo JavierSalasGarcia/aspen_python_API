@@ -25,6 +25,10 @@ def main():
         # Crear FluidPackage y asignar modelo termodinámico
         fluid_pkg = basis_manager.FluidPackages.Add()
 
+        # CRÍTICO: Conectar ComponentList al FluidPackage
+        # Sin esto, el package tiene 0 componentes
+        fluid_pkg.ComponentList = comp_list
+
         # Probar nombres de paquetes termodinámicos
         nombres_pkg = ["NRTL", "SRK", "PR", "Peng-Robinson"]
         for nombre in nombres_pkg:
