@@ -16,13 +16,21 @@ def main():
         case = hysys.SimulationCases.Add()
         print("\n[1/4] HYSYS iniciado y caso creado")
 
-        # Acceder al Basis Manager y crear/obtener FluidPackage
+        # Acceder al Basis Manager
         print("   → Accediendo al Basis Manager...")
         basis = case.BasisManager
 
-        # Agregar un nuevo FluidPackage
-        print("   → Creando FluidPackage...")
-        fluid_pkg = basis.AddFluidPackage()
+        # Obtener o crear FluidPackage
+        print("   → Obteniendo FluidPackages...")
+        fluid_packages = basis.FluidPackages
+
+        # Si no hay FluidPackages, crear uno
+        if fluid_packages.Count == 0:
+            print("   → Creando nuevo FluidPackage...")
+            fluid_pkg = fluid_packages.Add()
+        else:
+            print("   → Usando FluidPackage existente...")
+            fluid_pkg = fluid_packages.Item(0)
 
         # Acceder a Components
         print("   → Accediendo a Components...")
