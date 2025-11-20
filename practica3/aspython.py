@@ -10,7 +10,9 @@ def main():
     try:
         hysys = win32.Dispatch('HYSYS.Application')
         hysys.Visible = True
-        case = hysys.ActiveDocument
+
+        # Crear nuevo caso de simulación
+        case = hysys.SimulationCases.Add()
 
         # Componentes
         fluid_pkg = case.FluidPackage
