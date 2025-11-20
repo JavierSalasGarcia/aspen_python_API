@@ -11,6 +11,7 @@ Batch: Integración de dX/dt = k·CA0·(1-X)
 CSTR: Solución algebraica X = (τ·k)/(1 + τ·k)
 
 Autor: Salas-García, et. al
+import os
 Fecha: 2025-01-15
 """
 
@@ -228,7 +229,8 @@ def main():
         }
     }
 
-    output_file = '/home/user/aspen_python_API/practica7/resultados_python.json'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_file = os.path.join(script_dir, 'resultados_python.json')
     with open(output_file, 'w') as f:
         json.dump(results, f, indent=2)
 

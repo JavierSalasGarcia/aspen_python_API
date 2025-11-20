@@ -11,6 +11,7 @@ Ecuación de Arrhenius: k = A·exp(-Ea/RT)
 Diseño CSTR: V/F = X / (k·CA0·(1-X))  para cinética de 1er orden
 
 Autor: Salas-García, et. al
+import os
 Fecha: 2025-01-15
 """
 
@@ -177,7 +178,8 @@ def main():
         'conversion_vs_temperatura': conversions_vs_T
     }
 
-    output_file = '/home/user/aspen_python_API/practica6/resultados_python.json'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_file = os.path.join(script_dir, 'resultados_python.json')
     with open(output_file, 'w') as f:
         json.dump(results, f, indent=2)
 

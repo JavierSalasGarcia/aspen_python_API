@@ -11,6 +11,7 @@ Autor: Salas-García, et. al
 Fecha: 2025-01-15
 """
 
+import os
 def main():
     """Función principal"""
 
@@ -93,7 +94,8 @@ def main():
     print("\n[4/4] Guardando resultados...")
 
     import json
-    output_file = '/home/user/aspen_python_API/practica2/resultados_python.json'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_file = os.path.join(script_dir, 'resultados_python.json')
     with open(output_file, 'w') as f:
         json.dump(results, f, indent=2)
 

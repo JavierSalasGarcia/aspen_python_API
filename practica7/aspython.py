@@ -18,6 +18,7 @@ import win32com.client as win32
 import time
 import json
 import numpy as np
+import os
 
 def main():
     """Función principal"""
@@ -38,15 +39,31 @@ def main():
 
         # PASO 2: Configurar componentes
         print("\n[2/10] Configurando componentes...")
-        fluid_pkg = case.FluidPackage
-        components = fluid_pkg.Components
+        basis_manager = case.BasisManager
+
+        # Crear ComponentList y agregar componentes
+        comp_lists = basis_manager.ComponentLists
+        comp_list = comp_lists.Add()
+        components = comp_list.Components
 
         components.Add("Methanol")  # Reactivo A
         components.Add("Ethanol")   # Producto B
 
-        fluid_pkg.PropertyPackage = "NRTL"
+        # Crear FluidPackage y asignar modelo termodinámico
+        fluid_pkg = basis_manager.FluidPackages.Add()
+
+        # Probar nombres de paquetes termodinámicos
+        nombres_pkg = ["NRTL", "SRK", "PR"]
+        for nombre in nombres_pkg:
+            try:
+                fluid_pkg.PropertyPackageName = nombre
+                if fluid_pkg.PropertyPackageName == nombre:
+                    print(f"   ✓ Paquete termodinámico: {nombre}")
+                    break
+            except:
+                continue
+
         print("   ✓ Componentes: Methanol → Ethanol")
-        print("   ✓ Paquete: NRTL")
 
         # PASO 3: Parámetros de reacción
         print("\n[3/10] Definiendo parámetros de reacción...")
@@ -222,7 +239,8 @@ def main():
             }
         }
 
-        output_file = '/home/user/aspen_python_API/practica7/resultados_aspen.json'
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        output_file = os.path.join(script_dir, "resultados_aspen.json")
         with open(output_file, 'w') as f:
             json.dump(results, f, indent=2)
         print(f"   ✓ Resultados guardados: resultados_aspen.json")
@@ -230,7 +248,6 @@ def main():
         # PASO 10: Cerrar HYSYS
         print("\n[10/10] Cerrando HYSYS...")
         time.sleep(2)
-        case.SaveRequired = False
         hysys.Quit()
         print("   ✓ HYSYS cerrado")
 

@@ -18,6 +18,7 @@ import win32com.client as win32
 import time
 import json
 import numpy as np
+import os
 
 def main():
     """Función principal"""
@@ -38,16 +39,32 @@ def main():
 
         # PASO 2: Configurar componentes
         print("\n[2/9] Configurando componentes...")
-        fluid_pkg = case.FluidPackage
-        components = fluid_pkg.Components
+        basis_manager = case.BasisManager
+
+        # Crear ComponentList y agregar componentes
+        comp_lists = basis_manager.ComponentLists
+        comp_list = comp_lists.Add()
+        components = comp_list.Components
 
         # Reacción simple A → B
         components.Add("Methanol")  # Componente A (reactivo)
         components.Add("Ethanol")   # Componente B (producto)
 
-        fluid_pkg.PropertyPackage = "NRTL"
+        # Crear FluidPackage y asignar modelo termodinámico
+        fluid_pkg = basis_manager.FluidPackages.Add()
+
+        # Probar nombres de paquetes termodinámicos
+        nombres_pkg = ["NRTL", "SRK", "PR"]
+        for nombre in nombres_pkg:
+            try:
+                fluid_pkg.PropertyPackageName = nombre
+                if fluid_pkg.PropertyPackageName == nombre:
+                    print(f"   ✓ Paquete termodinámico: {nombre}")
+                    break
+            except:
+                continue
+
         print("   ✓ Componentes: Methanol (A) → Ethanol (B)")
-        print("   ✓ Paquete termodinámico: NRTL")
 
         # PASO 3: Parámetros cinéticos de Arrhenius
         print("\n[3/9] Definiendo parámetros cinéticos de Arrhenius...")
@@ -205,7 +222,8 @@ def main():
         print(f"      k a {T_operation}°C = {k_values[T_operation]:.2e} 1/h")
 
         # Guardar resultados
-        output_file = '/home/user/aspen_python_API/practica6/resultados_aspen.json'
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        output_file = os.path.join(script_dir, 'resultados_aspen.json')
         with open(output_file, 'w') as f:
             json.dump(results, f, indent=2)
         print(f"\n   ✓ Resultados guardados: resultados_aspen.json")
@@ -213,7 +231,6 @@ def main():
         # PASO 9: Cerrar HYSYS
         print("\n[9/9] Cerrando HYSYS...")
         time.sleep(2)
-        case.SaveRequired = False
         hysys.Quit()
         print("   ✓ HYSYS cerrado")
 
