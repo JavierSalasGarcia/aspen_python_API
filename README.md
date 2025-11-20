@@ -40,6 +40,48 @@ Además, cada práctica incluye:
 
 ### Instalación de Dependencias
 
+#### Opción 1: Instalación con Miniconda (Recomendado)
+
+**Paso 1: Instalar Miniconda**
+
+Descargar e instalar Miniconda desde: https://docs.conda.io/en/latest/miniconda.html
+
+- **Windows**: Descargar y ejecutar `Miniconda3-latest-Windows-x86_64.exe`
+- **Linux**: `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && bash Miniconda3-latest-Linux-x86_64.sh`
+- **macOS**: `curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh && bash Miniconda3-latest-MacOSX-x86_64.sh`
+
+**Paso 2: Crear y activar entorno virtual**
+
+```bash
+# Crear entorno con Python 3.10
+conda create -n entornoAsPy python=3.10 -y
+
+# Activar entorno
+conda activate entornoAsPy
+```
+
+**Paso 3: Instalar dependencias desde requirements.txt**
+
+```bash
+# Navegar al directorio del repositorio
+cd aspen_python_API
+
+# Instalar todas las dependencias
+pip install -r requirements.txt
+```
+
+**Paso 4: Verificar instalación**
+
+```bash
+# Verificar librerías de termodinámica
+python -c "import thermo; import chemicals; import CoolProp; print('Librerías instaladas correctamente')"
+
+# Verificar COM API (solo Windows)
+python -c "import win32com.client; print('COM API disponible')"
+```
+
+#### Opción 2: Instalación manual (sin entorno virtual)
+
 ```bash
 # Instalar librerías requeridas
 pip install pywin32 numpy scipy matplotlib pandas

@@ -1,0 +1,116 @@
+# ============================================================================
+# Dependencias Python para Automatización ASPEN HYSYS
+# Tutorial: Integración de ASPEN HYSYS con Python
+# ============================================================================
+#
+# Instalación:
+# 1. Instalar Miniconda desde: https://docs.conda.io/en/latest/miniconda.html
+# 2. Crear entorno: conda create -n entornoAsPy python=3.10
+# 3. Activar entorno: conda activate entornoAsPy
+# 4. Instalar dependencias: pip install -r requirements.txt
+#
+# Nota: pywin32 solo funciona en Windows (requerido para COM API de ASPEN)
+# ============================================================================
+
+# ============================================================================
+# Librerías de Termodinámica y Propiedades Químicas
+# ============================================================================
+thermo==0.2.20           # Cálculos termodinámicos y de equilibrio de fases
+chemicals==1.1.4         # Base de datos de 20,000+ compuestos químicos
+CoolProp==6.4.3          # Ecuaciones de estado de alta precisión
+
+# ============================================================================
+# Computación Científica
+# ============================================================================
+numpy==1.24.3            # Álgebra lineal y arrays multidimensionales
+scipy==1.10.1            # Optimización, integración, ecuaciones diferenciales
+pandas==2.0.2            # Análisis y manipulación de datos tabulares
+
+# ============================================================================
+# Visualización
+# ============================================================================
+matplotlib==3.7.1        # Gráficas científicas y visualizaciones
+seaborn==0.12.2          # Visualizaciones estadísticas avanzadas
+
+# ============================================================================
+# Interfaz COM para ASPEN HYSYS (solo Windows)
+# ============================================================================
+pywin32==306             # Acceso a COM API de Windows para controlar ASPEN
+
+# ============================================================================
+# Herramientas de Desarrollo (Opcionales)
+# ============================================================================
+jupyter==1.0.0           # Notebooks interactivos para exploración
+ipython==8.14.0          # Shell interactivo mejorado
+
+# ============================================================================
+# INSTRUCCIONES DETALLADAS
+# ============================================================================
+#
+# PASO 1: Descargar e Instalar Miniconda
+# ----------------------------------------
+# Windows:
+#   - Descargar: https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe
+#   - Ejecutar instalador y seguir instrucciones
+#   - Asegurarse de marcar "Add Miniconda to PATH" durante instalación
+#
+# Linux:
+#   wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+#   bash Miniconda3-latest-Linux-x86_64.sh
+#   source ~/.bashrc
+#
+# macOS:
+#   curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+#   bash Miniconda3-latest-MacOSX-x86_64.sh
+#   source ~/.bash_profile
+#
+# PASO 2: Crear Entorno Virtual
+# -------------------------------
+# Abrir terminal/Anaconda Prompt y ejecutar:
+#   conda create -n entornoAsPy python=3.10 -y
+#
+# PASO 3: Activar Entorno
+# -------------------------
+#   conda activate entornoAsPy
+#
+# PASO 4: Instalar Dependencias
+# -------------------------------
+# Navegar al directorio del proyecto:
+#   cd ruta/al/repositorio/aspen_python_API
+#
+# Instalar desde requirements.txt:
+#   pip install -r requirements.txt
+#
+# PASO 5: Verificar Instalación
+# -------------------------------
+# Ejecutar Python y verificar importaciones:
+#   python -c "import thermo; import chemicals; import CoolProp; print('OK')"
+#
+# Para ASPEN HYSYS (solo Windows):
+#   python -c "import win32com.client; print('COM API disponible')"
+#
+# PASO 6: Ejecutar Prácticas
+# ----------------------------
+# Activar entorno (si no está activado):
+#   conda activate entornoAsPy
+#
+# Ejecutar script de una práctica:
+#   python practica1/aspython.py
+#   python practica2/visualiza2.py
+#
+# DESACTIVAR ENTORNO
+# -------------------
+#   conda deactivate
+#
+# ELIMINAR ENTORNO (si necesario)
+# ---------------------------------
+#   conda env remove -n entornoAsPy
+#
+# ============================================================================
+# NOTAS IMPORTANTES
+# ============================================================================
+# - ASPEN HYSYS debe estar instalado en Windows para usar aspython.py
+# - Los scripts py_alone.py funcionan sin ASPEN en cualquier plataforma
+# - Para Linux/macOS: comentar o no instalar pywin32
+# - Versiones más recientes de librerías pueden tener cambios de API
+# ============================================================================
