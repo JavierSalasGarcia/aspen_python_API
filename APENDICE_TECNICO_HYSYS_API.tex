@@ -1,0 +1,761 @@
+\documentclass[12pt,a4paper]{article}
+
+% Paquetes
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+
+% Configuración de página
+\geometry{
+    left=2.5cm,
+    right=2.5cm,
+    top=3cm,
+    bottom=3cm
+}
+
+% Configuración de código Python
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red},
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    frame=single,
+    rulecolor=\color{black},
+    tabsize=4,
+    breaklines=true,
+    breakatwhitespace=false,
+    captionpos=b,
+    escapeinside={\%*}{*)},
+    morekeywords={True,False,None}
+}
+
+% Configuración de hipervínculos
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Apéndice Técnico - Automatización HYSYS con Python},
+    pdfauthor={Debugging Sistemático},
+    pdfsubject={Referencia API HYSYS},
+    pdfkeywords={HYSYS, Python, COM, Automatización, pywin32}
+}
+
+% Configuración de encabezado y pie de página
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Apéndice Técnico - HYSYS API}
+\lhead{Debugging Sistemático}
+\rfoot{Página \thepage}
+
+% Cajas de advertencia
+\newtcolorbox{warningbox}{
+    colback=red!5!white,
+    colframe=red!75!black,
+    title=\textbf{IMPORTANTE}
+}
+
+\newtcolorbox{successbox}{
+    colback=green!5!white,
+    colframe=green!75!black,
+    title=\textbf{SOLUCIÓN}
+}
+
+\newtcolorbox{infobox}{
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    title=\textbf{HALLAZGO}
+}
+
+% Inicio del documento
+\begin{document}
+
+% Portada
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+
+    {\Huge\bfseries APÉNDICE TÉCNICO\par}
+    \vspace{1cm}
+    {\LARGE Automatización de ASPEN HYSYS con Python\par}
+    \vspace{0.5cm}
+    {\Large Patrones de API Descubiertos mediante Debugging Sistemático\par}
+
+    \vspace{3cm}
+
+    \begin{tcolorbox}[colback=gray!10,colframe=gray!50,width=0.8\textwidth]
+        \centering
+        \textbf{Derivado de:} Sesión de debugging - Prácticas 1-8\\
+        \textbf{Fecha:} 2025-01-20\\
+        \textbf{Entorno:} HYSYS (compatible SRK), Python 64-bit, pywin32\\
+        \textbf{Versión:} 1.0
+    \end{tcolorbox}
+
+    \vfill
+
+    {\large Mantenedor: Claude (Anthropic)\par}
+    {\large Estado: Validado mediante 8 prácticas funcionales\par}
+
+    \vspace{1cm}
+\end{titlepage}
+
+% Tabla de contenidos
+\tableofcontents
+\newpage
+
+% Sección 1: Resumen Ejecutivo
+\section{Resumen Ejecutivo}
+
+Durante la implementación de 8 prácticas de automatización de ASPEN HYSYS con Python, se encontraron múltiples incompatibilidades entre la documentación estándar y la API real expuesta por la versión instalada. Este documento registra los patrones correctos descubiertos mediante debugging sistemático.
+
+\subsection{Contexto}
+
+\begin{itemize}
+    \item \textbf{Problema inicial:} Error COM -2147221021 al intentar agregar componentes
+    \item \textbf{Duración:} Sesión extensa de debugging (iteración sistemática)
+    \item \textbf{Resultado:} 15 archivos Python actualizados, 8 prácticas funcionales
+    \item \textbf{Impacto:} Documentación de patrones reutilizables para implementaciones futuras
+\end{itemize}
+
+% Sección 2: Arquitectura de la API COM
+\section{Arquitectura de la API COM de HYSYS}
+
+\subsection{Jerarquía de Objetos Correcta}
+
+La jerarquía real de objetos en la API COM de HYSYS difiere significativamente de la documentación estándar:
+
+\begin{verbatim}
+Application (HYSYS.Application)
+    └── SimulationCases (colección)
+        └── SimulationCase (objeto)
+            ├── BasisManager ✓ (NO usar case.FluidPackage)
+            │   ├── ComponentLists (colección)
+            │   │   └── ComponentList (objeto)
+            │   │       └── Components (colección)
+            │   │           └── Component (objeto individual)
+            │   │
+            │   └── FluidPackages (colección)
+            │       └── FluidPackage (objeto)
+            │           └── PropertyPackageName (propiedad)
+            │
+            └── Flowsheet (objeto)
+                ├── MaterialStreams (colección)
+                └── Operations (colección)
+\end{verbatim}
+
+\subsection{Patrón Incorrecto vs Correcto}
+
+\begin{warningbox}
+\textbf{Patrón INCORRECTO} (documentación estándar):
+\begin{lstlisting}
+case = hysys.ActiveDocument  # Devuelve None
+fluid_pkg = case.FluidPackage  # No existe
+components = fluid_pkg.Components
+components.Add("Water")  # Nombre incorrecto
+\end{lstlisting}
+\end{warningbox}
+
+\begin{successbox}
+\textbf{Patrón CORRECTO} (implementación real):
+\begin{lstlisting}
+case = hysys.SimulationCases.Add()
+basis_manager = case.BasisManager
+comp_lists = basis_manager.ComponentLists
+comp_list = comp_lists.Add()
+components = comp_list.Components
+components.Add("H2O")  # Nombre correcto
+\end{lstlisting}
+\end{successbox}
+
+% Sección 3: Patrones Específicos
+\section{Patrones Específicos Descubiertos}
+
+\subsection{Inicialización de Caso de Simulación}
+
+\begin{lstlisting}
+import win32com.client as win32
+
+hysys = win32.Dispatch('HYSYS.Application')
+hysys.Visible = True
+
+# CORRECTO: Crear nuevo caso
+case = hysys.SimulationCases.Add()
+
+# INCORRECTO: ActiveDocument
+# case = hysys.ActiveDocument  # Devuelve None
+\end{lstlisting}
+
+\begin{infobox}
+\textbf{Hallazgo:} \texttt{ActiveDocument} requiere un caso previamente abierto. Para automatización completa, siempre usar \texttt{SimulationCases.Add()}.
+\end{infobox}
+
+\subsection{Agregación de Componentes}
+
+El proceso de agregación de componentes requiere seguir estrictamente la jerarquía:
+
+\begin{lstlisting}
+# 1. Acceder al BasisManager
+basis_manager = case.BasisManager
+
+# 2. Crear una ComponentList
+comp_lists = basis_manager.ComponentLists
+comp_list = comp_lists.Add()
+
+# 3. Acceder a Components DENTRO de la lista
+components = comp_list.Components
+
+# 4. Agregar componentes por nombre
+components.Add("Methanol")
+components.Add("H2O")  # NO "Water"
+components.Add("Ethanol")
+
+# 5. Verificar
+print(f"Componentes agregados: {components.Count}")
+\end{lstlisting}
+
+\subsubsection{Tabla de Nombres de Componentes}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Nombre Común} & \textbf{Nombre HYSYS Correcto} & \textbf{Alternativas (Fallan)} \\ \midrule
+Water/Agua & \texttt{H2O} & Water, WATER, water \\
+Methanol & \texttt{Methanol} & - \\
+Ethanol & \texttt{Ethanol} & - \\
+Ethyl acetate & \texttt{Ethyl acetate} & - \\
+Glicerol & \texttt{Glycerol} & (no siempre disponible) \\ \bottomrule
+\end{tabular}
+\caption{Nombres correctos de componentes en HYSYS}
+\label{tab:component_names}
+\end{table}
+
+\begin{warningbox}
+\textbf{CRÍTICO:} El nombre \texttt{"Water"} NO está disponible en la base de datos. Siempre usar \texttt{"H2O"}.
+\end{warningbox}
+
+\subsection{Configuración de Paquete Termodinámico}
+
+Los nombres de paquetes termodinámicos varían entre versiones de HYSYS. Implementar fallback:
+
+\begin{lstlisting}
+# Crear FluidPackage
+fluid_pkg = basis_manager.FluidPackages.Add()
+
+# Probar multiples nombres (varia entre versiones)
+nombres_pkg = ["NRTL", "Peng-Robinson", "PR", "SRK",
+               "Soave-Redlich-Kwong"]
+
+for nombre in nombres_pkg:
+    try:
+        fluid_pkg.PropertyPackageName = nombre
+        # Verificar que se asigno correctamente
+        if fluid_pkg.PropertyPackageName == nombre:
+            print(f"Modelo asignado: {nombre}")
+            break
+    except:
+        continue  # Intentar siguiente nombre
+\end{lstlisting}
+
+\begin{infobox}
+\textbf{Hallazgos:}
+\begin{itemize}
+    \item \texttt{SRK} funcionó en la versión de prueba
+    \item \texttt{"Peng-Robinson"} (con guion) causó error -2147024809
+    \item El nombre exacto varía entre versiones
+    \item Siempre implementar fallback con múltiples variantes
+\end{itemize}
+\end{infobox}
+
+\subsection{Extracción de Propiedades COM}
+
+\subsubsection{Problema: Objetos CDispatch}
+
+Las propiedades termodinámicas NO devuelven valores numéricos directos:
+
+\begin{lstlisting}
+# INCORRECTO - Causa error de formato
+tc = comp.CriticalTemperature
+print(f"Tc = {tc:.2f} K")
+# Error: unsupported format string passed to CDispatch
+
+# INCORRECTO - Causa error de conversion
+tc = float(comp.CriticalTemperature)
+# Error: float() argument must be 'string or number',
+#        not 'CDispatch'
+\end{lstlisting}
+
+\subsubsection{Solución: Usar .GetValue()}
+
+\begin{successbox}
+\begin{lstlisting}
+# Metodo 1: GetValue() - RECOMENDADO
+tc = comp.CriticalTemperature.GetValue()
+pc = comp.CriticalPressure.GetValue()
+mw = comp.MolecularWeight.GetValue()
+
+print(f"Tc = {tc:.2f} K")    # Funciona
+print(f"Pc = {pc:.2f} kPa")
+print(f"MW = {mw:.2f} g/mol")
+
+# Metodo 2: Propiedad .Value - ALTERNATIVA
+tc = comp.CriticalTemperature.Value  # Tambien funciona
+\end{lstlisting}
+\end{successbox}
+
+\subsubsection{Exploración de Objeto CDispatch}
+
+Para debugging, explorar la estructura del objeto COM:
+
+\begin{lstlisting}
+# Debugging: Explorar propiedades disponibles
+valor = comp.CriticalTemperature
+print(f"Tipo: {type(valor)}")
+# <class 'win32com.client.CDispatch'>
+print(f"Valor directo: {valor}")
+# 239.44802246093752
+
+# Metodos disponibles:
+# - GetValue()  -> float
+# - Value       -> float
+# - SetValue(val)
+# - CalcBy
+# - IsKnown
+# - UnitConversionType
+\end{lstlisting}
+
+\subsection{Manejo de Corrientes (Streams)}
+
+\begin{lstlisting}
+flowsheet = case.Flowsheet
+streams = flowsheet.MaterialStreams
+
+# Crear corriente
+stream1 = streams.Add("Entrada_Metanol")
+
+# Especificar composicion
+stream1.ComponentMolarFractionValue("Methanol", 1.0)
+
+# Especificar condiciones (asignacion directa)
+stream1.TemperatureValue = 25 + 273.15  # K
+stream1.PressureValue = 101.325          # kPa
+stream1.MolarFlowValue = 100.0           # kgmole/h
+
+# Leer propiedades (requiere GetValue())
+T = stream1.TemperatureValue.GetValue() - 273.15
+P = stream1.PressureValue.GetValue()
+F = stream1.MolarFlowValue.GetValue()
+rho = stream1.DensityValue.GetValue()  # Calculada
+\end{lstlisting}
+
+\begin{infobox}
+\textbf{Hallazgo:}
+\begin{itemize}
+    \item \textbf{Escritura:} Asignación directa sin \texttt{.SetValue()}
+    \item \textbf{Lectura:} Requiere \texttt{.GetValue()} para obtener \texttt{float}
+\end{itemize}
+\end{infobox}
+
+% Sección 4: Errores COM
+\section{Errores COM Comunes y Soluciones}
+
+\subsection{Códigos de Error}
+
+\begin{longtable}{@{}p{3cm}p{4cm}p{4cm}p{3cm}@{}}
+\toprule
+\textbf{Código COM} & \textbf{Descripción} & \textbf{Causa Común} & \textbf{Solución} \\ \midrule
+\endfirsthead
+
+\multicolumn{4}{c}%
+{{\bfseries Tabla \thetable\ (continuación)}} \\
+\toprule
+\textbf{Código COM} & \textbf{Descripción} & \textbf{Causa Común} & \textbf{Solución} \\ \midrule
+\endhead
+
+\bottomrule
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+-2147221021 & Operación no disponible & HYSYS no registrado, arquitectura incompatible & Verificar Python 64-bit, reinstalar HYSYS \\
+-2147352567 & Ocurrió una excepción & Nombre de componente inválido, propiedad no definida & Usar "H2O" en lugar de "Water", asignar antes de leer \\
+-2147024809 & Argumento inválido & Nombre de PropertyPackage incorrecto & Probar variantes ("SRK", "PR", "NRTL") \\
+-2147467259 & Error genérico & Propiedad null/no inicializada & Asignar PropertyPackageName antes de leer \\
+\caption{Códigos de error COM comunes}
+\label{tab:com_errors}
+\end{longtable}
+
+\subsection{Errores de Atributo}
+
+\begin{lstlisting}
+# Error: <unknown>.Add
+# Causa: Intentar agregar a coleccion de solo lectura
+fluid_pkg.Components.Add("Methanol")  # INCORRECTO
+
+# Solucion: Usar ComponentList
+comp_list.Components.Add("Methanol")  # CORRECTO
+\end{lstlisting}
+
+\begin{lstlisting}
+# Error: <unknown>.PropertyPackage
+# Causa: Propiedad no existe
+fluid_pkg.PropertyPackage = "NRTL"  # INCORRECTO
+
+# Solucion: Usar PropertyPackageName
+fluid_pkg.PropertyPackageName = "NRTL"  # CORRECTO
+\end{lstlisting}
+
+\begin{lstlisting}
+# Error: Property '<unknown>.SaveRequired' cannot be set
+# Causa: Propiedad no disponible en automatizacion
+case.SaveRequired = False  # INCORRECTO
+
+# Solucion: Simplemente no usar
+hysys.Quit()  # CORRECTO
+\end{lstlisting}
+
+% Sección 5: Manejo de Rutas
+\section{Manejo de Rutas Portátil}
+
+\subsection{Problema: Rutas Hardcodeadas}
+
+\begin{lstlisting}
+# INCORRECTO - No portatil entre Windows/Linux
+output_file = '/home/user/aspen_python_API/practica2/resultados.json'
+\end{lstlisting}
+
+\subsection{Solución: Rutas Relativas con os.path}
+
+\begin{successbox}
+\begin{lstlisting}
+import os
+
+# Obtener directorio del script actual
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construir ruta de archivo de salida
+output_file = os.path.join(script_dir, 'resultados_aspen.json')
+
+# Funciona en Windows y Linux
+with open(output_file, 'w') as f:
+    json.dump(results, f, indent=2)
+\end{lstlisting}
+\end{successbox}
+
+% Sección 6: Plantilla Validada
+\section{Plantilla de Código Validada}
+
+\subsection{Script Completo Mínimo}
+
+\begin{lstlisting}
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import win32com.client as win32
+import time
+import json
+import os
+
+def main():
+    try:
+        # 1. Iniciar HYSYS
+        hysys = win32.Dispatch('HYSYS.Application')
+        hysys.Visible = True
+        case = hysys.SimulationCases.Add()
+
+        # 2. Configurar componentes
+        basis_manager = case.BasisManager
+        comp_lists = basis_manager.ComponentLists
+        comp_list = comp_lists.Add()
+        components = comp_list.Components
+
+        components.Add("Methanol")
+        components.Add("H2O")
+
+        # 3. Configurar paquete termodinamico
+        fluid_pkg = basis_manager.FluidPackages.Add()
+
+        for nombre in ["NRTL", "SRK", "PR"]:
+            try:
+                fluid_pkg.PropertyPackageName = nombre
+                if fluid_pkg.PropertyPackageName == nombre:
+                    print(f"Modelo: {nombre}")
+                    break
+            except:
+                continue
+
+        # 4. Crear corriente
+        flowsheet = case.Flowsheet
+        streams = flowsheet.MaterialStreams
+        stream1 = streams.Add("S1")
+
+        stream1.ComponentMolarFractionValue("Methanol", 1.0)
+        stream1.TemperatureValue = 298.15  # K
+        stream1.PressureValue = 101.325     # kPa
+        stream1.MolarFlowValue = 100.0      # kgmole/h
+
+        time.sleep(2)  # Esperar calculos
+
+        # 5. Extraer resultados
+        T = stream1.TemperatureValue.GetValue()
+        P = stream1.PressureValue.GetValue()
+        rho = stream1.DensityValue.GetValue()
+
+        print(f"T={T-273.15:.2f}C, P={P:.2f}kPa, rho={rho:.2f}kg/m3")
+
+        # 6. Guardar
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        output_file = os.path.join(script_dir, 'resultados.json')
+
+        with open(output_file, 'w') as f:
+            json.dump({'T_K': T, 'P_kPa': P, 'rho': rho},
+                     f, indent=2)
+
+        # 7. Cerrar
+        time.sleep(2)
+        hysys.Quit()
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+
+if __name__ == '__main__':
+    main()
+\end{lstlisting}
+
+% Sección 7: Casos Especiales
+\section{Casos Especiales}
+
+\subsection{Componentes con Disponibilidad Limitada}
+
+\begin{lstlisting}
+# Intentar agregar componente que puede no estar disponible
+try:
+    components.Add("Glycerol")
+    print("Glycerol agregado")
+except Exception as e:
+    print(f"Glycerol no disponible: {e}")
+    # Continuar sin este componente o usar sustituto
+\end{lstlisting}
+
+\subsection{Operaciones con Reactores}
+
+\begin{lstlisting}
+# Crear reactor de conversion
+operations = flowsheet.Operations
+reactor = operations.Add("ConversionReactor")
+reactor.Name = "R1"
+
+# Conectar corrientes
+reactor.Feeds.Add(feed_stream)
+reactor.Outlet = outlet_stream
+
+# Configurar reaccion
+rxn_set = reactor.ReactionSet
+rxn = rxn_set.Reactions.Add()
+
+# Estequiometria: A + B -> C + D
+rxn.ComponentStoichCoeffValue("Methanol", -1.0)   # Reactivo
+rxn.ComponentStoichCoeffValue("Ethanol", -1.0)    # Reactivo
+rxn.ComponentStoichCoeffValue("Ethyl acetate", 1.0) # Producto
+rxn.ComponentStoichCoeffValue("H2O", 1.0)         # Producto
+
+# Conversion fija
+rxn.BaseComponent = "Ethanol"
+rxn.Conversion = 0.85  # 85%
+
+time.sleep(3)  # Esperar convergencia
+\end{lstlisting}
+
+% Sección 8: Mejores Prácticas
+\section{Mejores Prácticas}
+
+\subsection{Manejo de Errores}
+
+\begin{lstlisting}
+try:
+    # Operacion COM
+    components.Add("ComponentName")
+except Exception as e:
+    print(f"Error: {e}")
+    print(f"Tipo: {type(e).__name__}")
+
+    # Para errores COM, obtener codigo
+    if hasattr(e, 'args') and len(e.args) > 0:
+        error_code = e.args[0] if isinstance(e.args[0], int) else None
+        print(f"Codigo COM: {error_code}")
+
+    import traceback
+    traceback.print_exc()
+\end{lstlisting}
+
+\subsection{Esperas para Cálculos}
+
+\begin{infobox}
+HYSYS requiere tiempo para convergencia de cálculos:
+\begin{itemize}
+    \item Después de especificar corrientes: \texttt{time.sleep(2)}
+    \item Después de crear reactores: \texttt{time.sleep(3)}
+    \item Antes de cerrar HYSYS: \texttt{time.sleep(2)}
+\end{itemize}
+\end{infobox}
+
+\subsection{Verificación de Conteos}
+
+\begin{lstlisting}
+# Siempre verificar que los componentes se agregaron
+print(f"Componentes agregados: {components.Count}")
+
+if components.Count == 0:
+    raise ValueError("No se agregaron componentes")
+\end{lstlisting}
+
+% Sección 9: Debugging
+\section{Debugging Sistemático}
+
+\subsection{Explorar Objeto Desconocido}
+
+\begin{lstlisting}
+# Listar todas las propiedades/metodos disponibles
+obj = basis_manager  # Objeto a explorar
+
+print("Propiedades disponibles:")
+for attr in dir(obj):
+    if not attr.startswith('_'):
+        print(f"  - {attr}")
+\end{lstlisting}
+
+\subsection{Verificar Tipo de Valor}
+
+\begin{lstlisting}
+valor = comp.CriticalTemperature
+
+print(f"Tipo: {type(valor)}")
+print(f"Valor directo: {valor}")
+
+# Si es CDispatch, explorar submetodos
+if hasattr(valor, '_oleobj_'):
+    print("Es objeto COM")
+    for attr in dir(valor):
+        if not attr.startswith('_') and attr[0].isupper():
+            print(f"  - {attr}")
+\end{lstlisting}
+
+\subsection{Script de Diagnóstico}
+
+\begin{lstlisting}
+import sys
+
+print("="*60)
+print("DIAGNOSTICO ASPEN HYSYS + PYTHON")
+print("="*60)
+
+# 1. Arquitectura Python
+arch = "64-bit" if sys.maxsize > 2**32 else "32-bit"
+print(f"\n1. Python: {sys.version}")
+print(f"   Arquitectura: {arch}")
+
+# 2. Libreria pywin32
+try:
+    import win32com.client
+    print("\n2. pywin32 instalado")
+except ImportError:
+    print("\n2. pywin32 NO instalado")
+    print("   Instalar: pip install pywin32")
+
+# 3. Conexion HYSYS
+try:
+    hysys = win32com.client.Dispatch('HYSYS.Application')
+    print("\n3. HYSYS conectado exitosamente")
+    hysys.Visible = False
+    hysys.Quit()
+except Exception as e:
+    print(f"\n3. Error conectando HYSYS: {e}")
+\end{lstlisting}
+
+% Sección 10: Conclusiones
+\section{Conclusiones y Recomendaciones}
+
+\subsection{Hallazgos Clave}
+
+\begin{enumerate}
+    \item La documentación estándar de HYSYS \textbf{no refleja la API real} expuesta en todas las versiones
+    \item Los nombres de componentes y paquetes termodinámicos \textbf{varían} entre versiones
+    \item Los objetos COM requieren \textbf{manejo especial} para extracción de valores numéricos
+    \item La jerarquía \texttt{BasisManager → ComponentLists} es \textbf{obligatoria}, no opcional
+\end{enumerate}
+
+\subsection{Recomendaciones}
+
+\begin{enumerate}
+    \item \textbf{Siempre usar debugging exploratorio} antes de asumir que la documentación es correcta
+    \item \textbf{Implementar fallbacks} para nombres de componentes y paquetes termodinámicos
+    \item \textbf{Usar \texttt{.GetValue()} consistentemente} para todas las propiedades COM
+    \item \textbf{Verificar conteos} después de cada operación de agregación
+    \item \textbf{Incluir tiempos de espera} para permitir convergencia de cálculos
+\end{enumerate}
+
+\subsection{Recursos de Referencia}
+
+\begin{itemize}
+    \item \textbf{Código fuente validado:} Prácticas 2-8 en repositorio
+    \item \textbf{Script de diagnóstico:} \texttt{practica1/diagnostico\_hysys.py}
+    \item \textbf{Guía de troubleshooting:} \texttt{practica1/SOLUCION\_PROBLEMAS.md}
+\end{itemize}
+
+% Apéndice
+\appendix
+
+\section{Resumen de Commits}
+
+Durante la sesión de debugging se realizaron los siguientes commits:
+
+\begin{itemize}
+    \item \texttt{f7c2922} - Corregir rutas hardcodeadas en todos los archivos py\_alone.py
+    \item \texttt{d4bc49b} - Aplicar patrones correctos de HYSYS API a prácticas 6-8
+    \item \texttt{3cf4d61} - Aplicar patrones correctos de HYSYS API a prácticas 2-5
+    \item \texttt{8b3077c} - Usar GetValue() para extraer valores numéricos de propiedades COM
+    \item \texttt{23b1881} - Agregar debug para explorar estructura de propiedades de componentes COM
+\end{itemize}
+
+\section{Glosario}
+
+\begin{description}
+    \item[COM] Component Object Model - Tecnología de Microsoft para comunicación entre procesos
+    \item[CDispatch] Objeto COM dinámico en Python (pywin32)
+    \item[BasisManager] Objeto de HYSYS que gestiona componentes y paquetes termodinámicos
+    \item[FluidPackage] Configuración de modelo termodinámico en HYSYS
+    \item[ComponentList] Colección de componentes químicos en HYSYS
+    \item[pywin32] Librería Python para acceder a APIs COM de Windows
+\end{description}
+
+% Información de versión
+\vfill
+\hrule
+\vspace{0.5cm}
+\noindent
+\textbf{Versión del documento:} 1.0 \\
+\textbf{Última actualización:} 2025-01-20 \\
+\textbf{Mantenedor:} Claude (Anthropic) \\
+\textbf{Estado:} Validado mediante 8 prácticas funcionales \\
+\textbf{Repositorio:} \texttt{aspen\_python\_API} \\
+\textbf{Rama:} \texttt{claude/debug-practice-1-01MPgRrgcABHGA1GhADpKGPJ}
+
+\end{document}
