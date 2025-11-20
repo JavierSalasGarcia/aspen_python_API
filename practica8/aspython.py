@@ -20,6 +20,7 @@ Fecha: 2025-01-15
 import win32com.client as win32
 import time
 import json
+import os
 
 def main():
     """Función principal"""
@@ -40,19 +41,40 @@ def main():
 
         # PASO 2: Configurar componentes
         print("\n[2/15] Configurando componentes del proceso...")
-        fluid_pkg = case.FluidPackage
-        components = fluid_pkg.Components
+        basis_manager = case.BasisManager
+
+        # Crear ComponentList y agregar componentes
+        comp_lists = basis_manager.ComponentLists
+        comp_list = comp_lists.Add()
+        components = comp_list.Components
 
         # Componentes del proceso de biodiesel (usando sustitutos disponibles)
         components.Add("Methanol")      # Alcohol
         components.Add("Ethanol")       # Triglicérido (sustituto)
         components.Add("Ethyl acetate") # Biodiesel (sustituto)
-        components.Add("Water")         # Agua (lavado/glicerol)
-        components.Add("Glycerol")      # Glicerol (si disponible)
+        components.Add("H2O")           # Agua (lavado/glicerol)
 
-        fluid_pkg.PropertyPackage = "NRTL"
+        # Intentar agregar Glycerol si está disponible
+        try:
+            components.Add("Glycerol")
+        except:
+            pass  # Si no está disponible, continuar sin él
+
+        # Crear FluidPackage y asignar modelo termodinámico
+        fluid_pkg = basis_manager.FluidPackages.Add()
+
+        # Probar nombres de paquetes termodinámicos
+        nombres_pkg = ["NRTL", "SRK", "PR"]
+        for nombre in nombres_pkg:
+            try:
+                fluid_pkg.PropertyPackageName = nombre
+                if fluid_pkg.PropertyPackageName == nombre:
+                    print(f"   ✓ Paquete termodinámico: {nombre}")
+                    break
+            except:
+                continue
+
         print("   ✓ Componentes configurados")
-        print("   ✓ Paquete termodinámico: NRTL")
         print("   ℹ Nota: Se usan sustitutos por disponibilidad")
 
         flowsheet = case.Flowsheet
@@ -130,7 +152,7 @@ def main():
         rxn.ComponentStoichCoeffValue("Methanol", -1.0)
         rxn.ComponentStoichCoeffValue("Ethanol", -1.0)
         rxn.ComponentStoichCoeffValue("Ethyl acetate", 1.0)  # Biodiesel
-        rxn.ComponentStoichCoeffValue("Water", 1.0)  # Glicerol
+        rxn.ComponentStoichCoeffValue("H2O", 1.0)  # Glicerol
 
         rxn.BaseComponent = "Ethanol"
         rxn.Conversion = 0.90  # 90% conversión
@@ -166,7 +188,7 @@ def main():
 
         # Agua de lavado
         wash_water = streams.Add("Agua_Lavado")
-        wash_water.ComponentMolarFractionValue("Water", 1.0)
+        wash_water.ComponentMolarFractionValue("H2O", 1.0)
         wash_water.TemperatureValue = 25 + 273.15  # K
         wash_water.PressureValue = 101.325  # kPa
         wash_water.MolarFlowValue = 20.0  # kgmole/h
@@ -230,7 +252,7 @@ def main():
         # Biodiesel final
         F_biodiesel_final = stream_biodiesel_final.MolarFlowValue
         x_biodiesel_final = stream_biodiesel_final.ComponentMolarFractionValue("Ethyl acetate")
-        x_water_final = stream_biodiesel_final.ComponentMolarFractionValue("Water")
+        x_water_final = stream_biodiesel_final.ComponentMolarFractionValue("H2O")
         T_biodiesel_final = stream_biodiesel_final.TemperatureValue - 273.15
 
         print(f"\n   RESULTADOS DEL PROCESO:")
@@ -326,7 +348,8 @@ def main():
             }
         }
 
-        output_file = '/home/user/aspen_python_API/practica8/resultados_aspen.json'
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        output_file = os.path.join(script_dir, "resultados_aspen.json")
         with open(output_file, 'w') as f:
             json.dump(results, f, indent=2)
         print(f"   ✓ Resultados guardados: resultados_aspen.json")
@@ -334,7 +357,6 @@ def main():
         # PASO 15: Cerrar HYSYS
         print("\n[15/15] Cerrando HYSYS...")
         time.sleep(3)
-        case.SaveRequired = False
         hysys.Quit()
         print("   ✓ HYSYS cerrado")
 
