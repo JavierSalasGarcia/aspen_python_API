@@ -17,6 +17,7 @@ Fecha: 2025-01-15
 import win32com.client as win32
 import time
 import json
+import os
 
 def main():
     """Función principal"""
@@ -37,18 +38,34 @@ def main():
 
         # PASO 2: Configurar componentes
         print("\n[2/8] Configurando componentes para biodiesel...")
-        fluid_pkg = case.FluidPackage
-        components = fluid_pkg.Components
+        basis_manager = case.BasisManager
+
+        # Crear ComponentList y agregar componentes
+        comp_lists = basis_manager.ComponentLists
+        comp_list = comp_lists.Add()
+        components = comp_list.Components
 
         # Componentes para reacción de transesterificación
         components.Add("Methanol")      # Reactivo
         components.Add("Ethanol")       # Sustituto de triglicérido
         components.Add("Ethyl acetate") # Sustituto de biodiesel
-        components.Add("Water")         # Sustituto de glicerol
+        components.Add("H2O")           # Sustituto de glicerol
 
-        fluid_pkg.PropertyPackage = "NRTL"
-        print("   ✓ Componentes: Methanol, Ethanol, Ethyl acetate, Water")
-        print("   ✓ Paquete termodinámico: NRTL")
+        # Crear FluidPackage y asignar modelo termodinámico
+        fluid_pkg = basis_manager.FluidPackages.Add()
+
+        # Probar nombres de paquetes termodinámicos
+        nombres_pkg = ["NRTL", "SRK", "PR"]
+        for nombre in nombres_pkg:
+            try:
+                fluid_pkg.PropertyPackageName = nombre
+                if fluid_pkg.PropertyPackageName == nombre:
+                    print(f"   ✓ Paquete termodinámico: {nombre}")
+                    break
+            except:
+                continue
+
+        print("   ✓ Componentes: Methanol, Ethanol, Ethyl acetate, H2O")
         print("   ℹ Nota: Se usan sustitutos por disponibilidad en HYSYS")
 
         # PASO 3: Crear corriente de alimentación
@@ -96,11 +113,11 @@ def main():
         rxn = rxn_set.Reactions.Add()
 
         # Definir estequiometría (simplificada)
-        # Methanol + Ethanol → Ethyl acetate + Water
+        # Methanol + Ethanol → Ethyl acetate + H2O
         rxn.ComponentStoichCoeffValue("Methanol", -1.0)   # Reactivo
         rxn.ComponentStoichCoeffValue("Ethanol", -1.0)    # Reactivo
         rxn.ComponentStoichCoeffValue("Ethyl acetate", 1.0) # Producto (biodiesel)
-        rxn.ComponentStoichCoeffValue("Water", 1.0)       # Producto (glicerol)
+        rxn.ComponentStoichCoeffValue("H2O", 1.0)         # Producto (glicerol)
 
         # Configurar base de conversión
         rxn.BaseComponent = "Ethanol"  # Conversión basada en triglicérido
@@ -133,7 +150,7 @@ def main():
         outlet_x_methanol = outlet_stream.ComponentMolarFractionValue("Methanol")
         outlet_x_ethanol = outlet_stream.ComponentMolarFractionValue("Ethanol")
         outlet_x_biodiesel = outlet_stream.ComponentMolarFractionValue("Ethyl acetate")
-        outlet_x_glycerol = outlet_stream.ComponentMolarFractionValue("Water")
+        outlet_x_glycerol = outlet_stream.ComponentMolarFractionValue("H2O")
 
         results = {
             'reactor_type': 'CSTR con conversión fija',
@@ -174,7 +191,8 @@ def main():
         print(f"      x(Glycerol) = {outlet_x_glycerol:.4f}")
 
         # Guardar resultados
-        output_file = '/home/user/aspen_python_API/practica5/resultados_aspen.json'
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        output_file = os.path.join(script_dir, 'resultados_aspen.json')
         with open(output_file, 'w') as f:
             json.dump(results, f, indent=2)
         print(f"\n   ✓ Resultados guardados: resultados_aspen.json")
@@ -182,7 +200,6 @@ def main():
         # PASO 8: Cerrar HYSYS
         print("\n[8/8] Cerrando HYSYS...")
         time.sleep(2)
-        case.SaveRequired = False
         hysys.Quit()
         print("   ✓ HYSYS cerrado")
 

@@ -14,6 +14,7 @@ Fecha: 2025-01-15
 import win32com.client as win32
 import time
 import json
+import os
 
 def main():
     """Función principal"""
@@ -34,14 +35,31 @@ def main():
 
         # PASO 2: Configurar componentes y termodinámica
         print("\n[2/7] Configurando componentes...")
-        fluid_pkg = case.FluidPackage
-        components = fluid_pkg.Components
+        basis_manager = case.BasisManager
+
+        # Crear ComponentList y agregar componentes
+        comp_lists = basis_manager.ComponentLists
+        comp_list = comp_lists.Add()
+        components = comp_list.Components
 
         components.Add("Methanol")
-        components.Add("Water")
-        fluid_pkg.PropertyPackage = "NRTL"
-        print("   ✓ Componentes: Methanol, Water")
-        print("   ✓ Paquete: NRTL")
+        components.Add("H2O")
+
+        # Crear FluidPackage y asignar modelo termodinámico
+        fluid_pkg = basis_manager.FluidPackages.Add()
+
+        # Probar nombres de paquetes termodinámicos
+        nombres_pkg = ["NRTL", "SRK", "PR"]
+        for nombre in nombres_pkg:
+            try:
+                fluid_pkg.PropertyPackageName = nombre
+                if fluid_pkg.PropertyPackageName == nombre:
+                    print(f"   ✓ Paquete termodinámico: {nombre}")
+                    break
+            except:
+                continue
+
+        print("   ✓ Componentes: Methanol, H2O")
 
         # PASO 3: Crear corrientes de entrada
         print("\n[3/7] Creando corrientes de entrada...")
@@ -62,15 +80,15 @@ def main():
 
         # Corriente 2: Agua pura
         stream2 = streams.Add("Entrada_Agua")
-        stream2.ComponentMolarFractionValue("Water", 1.0)
+        stream2.ComponentMolarFractionValue("H2O", 1.0)
         stream2.TemperatureValue = 30 + 273.15  # K
         stream2.PressureValue = 101.325  # kPa
         stream2.MolarFlowValue = 30.0  # kgmole/h
 
         print(f"\n   Corriente 2: {stream2.StreamName}")
-        print(f"      100% Water")
-        print(f"      T = {stream2.TemperatureValue - 273.15:.2f} °C")
-        print(f"      F = {stream2.MolarFlowValue:.2f} kgmole/h")
+        print(f"      100% H2O")
+        print(f"      T = {stream2.TemperatureValue.GetValue() - 273.15:.2f} °C")
+        print(f"      F = {stream2.MolarFlowValue.GetValue():.2f} kgmole/h")
 
         # PASO 4: Crear corriente de salida
         print("\n[4/7] Creando corriente de salida...")
@@ -103,7 +121,7 @@ def main():
                 'P_kPa': stream1.PressureValue,
                 'F_kgmoleh': stream1.MolarFlowValue,
                 'x_Methanol': stream1.ComponentMolarFractionValue("Methanol"),
-                'x_Water': stream1.ComponentMolarFractionValue("Water")
+                'x_H2O': stream1.ComponentMolarFractionValue("H2O")
             },
             'entrada2': {
                 'nombre': stream2.StreamName,
@@ -111,7 +129,7 @@ def main():
                 'P_kPa': stream2.PressureValue,
                 'F_kgmoleh': stream2.MolarFlowValue,
                 'x_Methanol': stream2.ComponentMolarFractionValue("Methanol"),
-                'x_Water': stream2.ComponentMolarFractionValue("Water")
+                'x_H2O': stream2.ComponentMolarFractionValue("H2O")
             },
             'salida': {
                 'nombre': stream_out.StreamName,
@@ -119,7 +137,7 @@ def main():
                 'P_kPa': stream_out.PressureValue,
                 'F_kgmoleh': stream_out.MolarFlowValue,
                 'x_Methanol': stream_out.ComponentMolarFractionValue("Methanol"),
-                'x_Water': stream_out.ComponentMolarFractionValue("Water"),
+                'x_H2O': stream_out.ComponentMolarFractionValue("H2O"),
                 'density_kgm3': stream_out.DensityValue
             }
         }
@@ -129,11 +147,12 @@ def main():
         print(f"      P = {results['salida']['P_kPa']:.2f} kPa")
         print(f"      F = {results['salida']['F_kgmoleh']:.2f} kgmole/h")
         print(f"      x(Methanol) = {results['salida']['x_Methanol']:.4f}")
-        print(f"      x(Water) = {results['salida']['x_Water']:.4f}")
+        print(f"      x(H2O) = {results['salida']['x_H2O']:.4f}")
         print(f"      Densidad = {results['salida']['density_kgm3']:.2f} kg/m³")
 
         # Guardar resultados
-        output_file = '/home/user/aspen_python_API/practica4/resultados_aspen.json'
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        output_file = os.path.join(script_dir, 'resultados_aspen.json')
         with open(output_file, 'w') as f:
             json.dump(results, f, indent=2)
         print(f"\n   ✓ Resultados guardados: resultados_aspen.json")
@@ -141,7 +160,6 @@ def main():
         # PASO 7: Cerrar HYSYS
         print("\n[7/7] Cerrando HYSYS...")
         time.sleep(3)
-        case.SaveRequired = False
         hysys.Quit()
         print("   ✓ HYSYS cerrado")
 
