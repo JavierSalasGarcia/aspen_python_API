@@ -26,7 +26,8 @@ def main():
     print("="*60)
 
     # Cargar datos si existen, sino usar valores de referencia
-    json_file = '/home/user/aspen_python_API/practica6/resultados_aspen.json'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    json_file = os.path.join(script_dir, 'resultados_aspen.json')
 
     if os.path.exists(json_file):
         try:
@@ -365,7 +366,7 @@ def main():
     plt.tight_layout()
 
     # Guardar
-    output_file = '/home/user/aspen_python_API/practica6/reactor_arrhenius_aspen.png'
+    output_file = os.path.join(script_dir, 'reactor_arrhenius_aspen.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"\n✓ Gráfica guardada: {output_file}")
 

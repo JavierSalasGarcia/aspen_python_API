@@ -14,6 +14,7 @@ Fecha: 2025-01-15
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
+import os
 
 def main():
     """Genera visualización de propiedades desde ASPEN"""
@@ -97,7 +98,8 @@ def main():
     plt.tight_layout()
 
     # Guardar figura
-    output_file = '/home/user/aspen_python_API/practica2/propiedades_aspen.png'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_file = os.path.join(script_dir, 'propiedades_aspen.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"\n✓ Gráfica guardada: {output_file}")
 

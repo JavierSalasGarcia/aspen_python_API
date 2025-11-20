@@ -25,8 +25,9 @@ def main():
     print("="*60)
 
     # Cargar datos
-    aspen_file = '/home/user/aspen_python_API/practica6/resultados_aspen.json'
-    python_file = '/home/user/aspen_python_API/practica6/resultados_python.json'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    aspen_file = os.path.join(script_dir, 'resultados_aspen.json')
+    python_file = os.path.join(script_dir, 'resultados_python.json')
 
     if os.path.exists(aspen_file):
         try:
@@ -285,7 +286,7 @@ def main():
     plt.tight_layout()
 
     # Guardar
-    output_file = '/home/user/aspen_python_API/practica6/comparacion_arrhenius.png'
+    output_file = os.path.join(script_dir, 'comparacion_arrhenius.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"\n✓ Gráfica guardada: {output_file}")
 

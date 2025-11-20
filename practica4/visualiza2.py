@@ -24,8 +24,9 @@ def main():
     print("="*60)
 
     # Cargar datos de ASPEN
-    aspen_file = '/home/user/aspen_python_API/practica4/resultados_aspen.json'
-    python_file = '/home/user/aspen_python_API/practica4/resultados_python.json'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    aspen_file = os.path.join(script_dir, 'resultados_aspen.json')
+    python_file = os.path.join(script_dir, 'resultados_python.json')
 
     # Cargar datos
     if os.path.exists(aspen_file):
@@ -351,7 +352,7 @@ def main():
     plt.tight_layout()
 
     # Guardar
-    output_file = '/home/user/aspen_python_API/practica4/comparacion_mixer.png'
+    output_file = os.path.join(script_dir, 'comparacion_mixer.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"\n✓ Gráfica guardada: {output_file}")
 

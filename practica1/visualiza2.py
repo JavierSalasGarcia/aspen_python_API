@@ -16,6 +16,7 @@ import matplotlib.patches as mpatches
 import sys
 import platform
 from datetime import datetime
+import os
 
 def main():
     """Genera visualización de la práctica 1 (Python puro)"""
@@ -117,7 +118,8 @@ def main():
     plt.tight_layout()
 
     # Guardar figura
-    output_file = '/home/user/aspen_python_API/practica1/resultados_python.png'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_file = os.path.join(script_dir, 'resultados_python.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"\n✓ Gráfica guardada: {output_file}")
 
