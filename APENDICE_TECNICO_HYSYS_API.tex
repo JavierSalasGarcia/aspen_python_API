@@ -349,18 +349,18 @@ streams = flowsheet.MaterialStreams
 # Crear corriente
 stream1 = streams.Add("Entrada_Metanol")
 
-# Especificar condiciones termodinamicas PRIMERO
-stream1.TemperatureValue = 25 + 273.15  # K
-stream1.PressureValue = 101.325          # kPa
-stream1.MolarFlowValue = 100.0           # kgmole/h
-
-# Especificar composicion usando ComponentMolarFraction.Values
-# IMPORTANTE: ComponentMolarFractionValue NO es callable con 2 params
+# PASO 1: Especificar composicion PRIMERO (OBLIGATORIO)
+# HYSYS necesita saber que componentes estan presentes antes de T/P/F
 comp_frac = stream1.ComponentMolarFraction.Values
 comp_frac[0] = 1.0  # 100% primer componente (Methanol)
 stream1.ComponentMolarFraction.Values = comp_frac
 
-# Leer propiedades (requiere GetValue())
+# PASO 2: Especificar condiciones termodinamicas (DESPUES de composicion)
+stream1.TemperatureValue = 25 + 273.15  # K
+stream1.PressureValue = 101.325          # kPa
+stream1.MolarFlowValue = 100.0           # kgmole/h
+
+# PASO 3: Leer propiedades calculadas (requiere GetValue())
 T = stream1.TemperatureValue.GetValue() - 273.15
 P = stream1.PressureValue.GetValue()
 F = stream1.MolarFlowValue.GetValue()
@@ -368,13 +368,19 @@ rho = stream1.DensityValue.GetValue()  # Calculada
 \end{lstlisting}
 
 \begin{warningbox}
-\textbf{ERROR COMUN:} NO usar \texttt{ComponentMolarFractionValue("Methanol", 1.0)}
-\\Esto causa error: \texttt{'tuple' object is not callable}
+\textbf{ERRORES COMUNES:}
+\begin{enumerate}
+    \item NO usar \texttt{ComponentMolarFractionValue("Methanol", 1.0)}
+    \\Causa error: \texttt{'tuple' object is not callable}
+    \item NO establecer T/P/F ANTES de la composicion
+    \\Causa error COM -2147352567: \texttt{'Ocurrio una excepcion'}
+\end{enumerate}
 \end{warningbox}
 
 \begin{infobox}
-\textbf{Hallazgo:}
+\textbf{Hallazgos:}
 \begin{itemize}
+    \item \textbf{ORDEN CRITICO:} Composicion primero, luego T/P/F
     \item \textbf{Composicion:} Usar \texttt{ComponentMolarFraction.Values} (array)
     \item \textbf{Escritura T/P/F:} Asignacion directa sin \texttt{.SetValue()}
     \item \textbf{Lectura:} Requiere \texttt{.GetValue()} para obtener \texttt{float}
@@ -405,7 +411,8 @@ rho = stream1.DensityValue.GetValue()  # Calculada
 \endlastfoot
 
 -2147221021 & Operación no disponible & HYSYS no registrado, arquitectura incompatible & Verificar Python 64-bit, reinstalar HYSYS \\
--2147352567 & Ocurrió una excepción & Nombre de componente inválido, propiedad no definida & Usar "H2O" en lugar de "Water", asignar antes de leer \\
+-2147352567 & Ocurrió una excepción & Nombre de componente inválido, propiedad no definida, orden incorrecto en corrientes & Usar "H2O" en lugar de "Water", establecer composición ANTES de T/P/F \\
+-2147024891 & Acceso denegado & Establecer T/P/F antes de composición en corrientes & Establecer ComponentMolarFraction.Values primero \\
 -2147024809 & Argumento inválido & Nombre de PropertyPackage incorrecto & Probar variantes ("SRK", "PR", "NRTL") \\
 -2147467259 & Error genérico & Propiedad null/no inicializada & Asignar PropertyPackageName antes de leer \\
 \caption{Códigos de error COM comunes}
@@ -515,14 +522,15 @@ def main():
         streams = flowsheet.MaterialStreams
         stream1 = streams.Add("S1")
 
-        stream1.TemperatureValue = 298.15  # K
-        stream1.PressureValue = 101.325     # kPa
-        stream1.MolarFlowValue = 100.0      # kgmole/h
-
-        # Composicion (usar array, no metodo con 2 params)
+        # IMPORTANTE: Composicion PRIMERO, antes de T/P/F
         comp_frac = stream1.ComponentMolarFraction.Values
         comp_frac[0] = 1.0  # 100% Methanol
         stream1.ComponentMolarFraction.Values = comp_frac
+
+        # Ahora si, condiciones termodinamicas
+        stream1.TemperatureValue = 298.15  # K
+        stream1.PressureValue = 101.325     # kPa
+        stream1.MolarFlowValue = 100.0      # kgmole/h
 
         time.sleep(2)  # Esperar calculos
 
