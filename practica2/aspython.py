@@ -47,10 +47,20 @@ def main():
         # --- FIN DE LA SECCIÓN DE COMPONENTES ---
 
         print("\n[3/4] Configurando Modelo Termodinámico...")
-        # Por defecto al crear el paquete suele asignarse uno, pero podemos definirlo
-        # Ejemplo: Asignar Peng-Robinson (Descomenta si lo necesitas)
-        # fluid_pkg.PropertyPackageName = "Peng-Robinson"
-        print(f"   → Paquete actual: {fluid_pkg.PropertyPackageName}")
+
+        # PASO CRITICO: Asignar el modelo antes de leerlo.
+        # "Peng-Robinson" es la cadena estándar para este modelo.
+        try:
+            print("   → Asignando Peng-Robinson...")
+            fluid_pkg.PropertyPackageName = "Peng-Robinson"
+        except Exception as e:
+            print(f"   ⚠ No se pudo asignar el modelo directamente: {e}")
+
+        # Ahora que ya tiene un valor, sí podemos leerlo (o confirmar que se asignó)
+        try:
+            print(f"   → Paquete configurado: {fluid_pkg.PropertyPackageName}")
+        except:
+            print("   → Paquete configurado (pero no se pudo leer el nombre vía COM)")
 
         # Extraer propiedades
         print("\n[4/4] Extrayendo propiedades de componentes...")
