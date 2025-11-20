@@ -16,36 +16,65 @@ def main():
         case = hysys.SimulationCases.Add()
         print("\n[1/4] HYSYS iniciado y caso creado")
 
-        # Configurar componentes
-        fluid_pkg = case.Flowsheet.FluidPackage
+        # Acceder al Flowsheet
+        print("   → Accediendo al Flowsheet...")
+        flowsheet = case.Flowsheet
+
+        # Acceder al FluidPackage
+        print("   → Accediendo al FluidPackage...")
+        fluid_pkg = flowsheet.FluidPackage
+
+        # Acceder a Components
+        print("   → Accediendo a Components...")
         components = fluid_pkg.Components
 
+        print("\n[2/4] Agregando componentes...")
+        print("   → Agregando Methanol...")
         components.Add("Methanol")
-        components.Add("Water")
-        print("[2/4] Componentes agregados: Methanol, Water")
+        print("   ✓ Methanol agregado")
 
-        # Paquete termodinamico
+        print("   → Agregando Water...")
+        components.Add("Water")
+        print("   ✓ Water agregado")
+
+        print("\n[3/4] Configurando paquete termodinámico...")
         fluid_pkg.PropertyPackage = "NRTL"
-        print("[3/4] Paquete: NRTL")
+        print("   ✓ Paquete configurado: NRTL")
 
         # Extraer propiedades
+        print("\n[4/4] Extrayendo propiedades de componentes...")
         for i in range(components.Count):
             comp = components.Item(i)
-            print(f"\n{comp.ComponentName}:")
-            print(f"  Tc = {comp.CriticalTemperature:.2f} K")
-            print(f"  Pc = {comp.CriticalPressure:.2f} kPa")
-            print(f"  MW = {comp.MolecularWeight:.2f} g/mol")
+            print(f"\n   {comp.ComponentName}:")
+            print(f"     Tc = {comp.CriticalTemperature:.2f} K")
+            print(f"     Pc = {comp.CriticalPressure:.2f} kPa")
+            print(f"     MW = {comp.MolecularWeight:.2f} g/mol")
 
-        print("\n[4/4] Cerrando...")
-        time.sleep(3)
+        print("\n[5/5] Cerrando...")
+        time.sleep(2)
         case.SaveRequired = False
         hysys.Quit()
 
-        print("\nPRACTICA 2 COMPLETADA!")
-        print("Proxima: Practica 3 - Corrientes")
+        print("\n" + "="*60)
+        print("PRACTICA 2 COMPLETADA!")
+        print("="*60)
+        print("\nPróxima: Practica 3 - Corrientes")
 
     except Exception as e:
-        print(f"ERROR: {e}")
+        print(f"\n✗ ERROR: {e}")
+        print(f"   Tipo: {type(e).__name__}")
+        if hasattr(e, 'args') and len(e.args) > 0:
+            print(f"   Código COM: {e.args[0] if isinstance(e.args[0], int) else 'N/A'}")
+
+        print("\n💡 SOLUCIONES:")
+        print("   1. Asegúrate de que HYSYS está completamente abierto")
+        print("   2. Intenta cerrar HYSYS y ejecutar el script de nuevo")
+        print("   3. Verifica que tienes licencia activa de HYSYS")
+
+        try:
+            hysys.Quit()
+        except:
+            pass
 
 if __name__ == '__main__':
     main()
