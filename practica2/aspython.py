@@ -3,7 +3,7 @@ import time
 
 def main():
     print("="*60)
-    print("PRACTICA 2: COMPONENTES Y PAQUETES (FINAL V2)")
+    print("PRACTICA 2: EXPLORANDO COMPONENT LIST")
     print("="*60)
 
     try:
@@ -12,68 +12,57 @@ def main():
         case = hysys.SimulationCases.Add()
         basis_manager = case.BasisManager
 
-        print("\n[1/4] Accediendo a ComponentLists...")
-        # BasisManager tiene ComponentLists (plural), no Components
+        print("\n[1] Accediendo a ComponentLists...")
         comp_lists = basis_manager.ComponentLists
-        print(f"   → Número de listas de componentes: {comp_lists.Count}")
+        print(f"   → Número de listas: {comp_lists.Count}")
 
-        # Crear o acceder a la primera lista de componentes
+        # Crear una ComponentList
         if comp_lists.Count == 0:
             print("   → Creando nueva Component List...")
             comp_list = comp_lists.Add()
+            print("   ✓ Component List creada")
         else:
-            print("   → Usando Component List existente...")
             comp_list = comp_lists.Item(0)
 
-        print("\n[2/4] Agregando componentes a la lista...")
-        print("   → Agregando Methanol...")
-        comp_list.Add("Methanol")
-        print(f"   → Count después de Methanol: {comp_list.Count}")
+        print("\n[2] Explorando métodos y propiedades de ComponentList:")
+        print("   Propiedades/métodos disponibles:")
+        for attr in dir(comp_list):
+            if not attr.startswith('_'):
+                print(f"      - {attr}")
 
-        print("   → Agregando Water...")
-        comp_list.Add("Water")
-        print(f"   → Count después de Water: {comp_list.Count}")
+        print("\n[3] Probando métodos comunes para agregar componentes...")
 
-        if comp_list.Count > 0:
-            print(f"   ✓ Componentes agregados correctamente: {comp_list.Count}")
-        else:
-            print("   ⚠ ADVERTENCIA: Count sigue en 0")
+        # Intentar varias alternativas
+        alternativas = [
+            ("comp_list.Add('Methanol')", lambda: comp_list.Add('Methanol')),
+            ("comp_list.AddComponent('Methanol')", lambda: comp_list.AddComponent('Methanol')),
+            ("comp_list.Components.Add('Methanol')", lambda: comp_list.Components.Add('Methanol')),
+            ("comp_list.AddCompound('Methanol')", lambda: comp_list.AddCompound('Methanol')),
+        ]
 
-        print("\n[3/4] Creando Fluid Package...")
-        fluid_pkg = basis_manager.FluidPackages.Add()
-
-        # Configurar modelo termodinámico
-        print("   → Configurando modelo termodinámico...")
-        nombres = ["Peng-Robinson", "PR", "SRK", "Soave-Redlich-Kwong"]
-
-        for nombre in nombres:
+        for nombre, metodo in alternativas:
             try:
-                fluid_pkg.PropertyPackageName = nombre
-                if fluid_pkg.PropertyPackageName == nombre:
-                    print(f"   ✓ Modelo asignado: {nombre}")
-                    break
-            except:
-                continue
+                print(f"\n   Intentando: {nombre}")
+                resultado = metodo()
+                print(f"   ✓ ÉXITO con: {nombre}")
+                print(f"   → Resultado: {resultado}")
+                print(f"   → Count ahora: {comp_list.Count if hasattr(comp_list, 'Count') else 'N/A'}")
+                break  # Si funciona, salir del loop
+            except AttributeError as e:
+                print(f"   ✗ Método no existe: {e}")
+            except Exception as e:
+                print(f"   ✗ Error ejecutando: {e}")
 
-        print("\n[4/4] Extrayendo propiedades de componentes...")
+        print("\n[4] Información adicional sobre ComponentList:")
+        try:
+            print(f"   → TypeName: {comp_list.TypeName if hasattr(comp_list, 'TypeName') else 'N/A'}")
+            print(f"   → Count: {comp_list.Count if hasattr(comp_list, 'Count') else 'N/A'}")
+        except Exception as e:
+            print(f"   ⚠ Error obteniendo info: {e}")
 
-        for i in range(comp_list.Count):
-            comp = comp_list.Item(i)
-            print(f"\n   Componente: {comp.Name}")
-
-            try:
-                print(f"     Tc: {comp.CriticalTemperature} K")
-                print(f"     Pc: {comp.CriticalPressure} kPa")
-                print(f"     MW: {comp.MolecularWeight}")
-            except Exception as prop_err:
-                print(f"     ⚠ Error leyendo propiedades: {prop_err}")
-
-        print("\n[5/5] Cerrando...")
-        time.sleep(2)
+        print("\n[5] Cerrando...")
+        time.sleep(3)  # Más tiempo para ver HYSYS
         hysys.Quit()
-
-        print("\n" + "="*60)
-        print("✓ PRACTICA 2 COMPLETADA CON ÉXITO")
         print("="*60)
 
     except Exception as e:
