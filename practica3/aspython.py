@@ -44,14 +44,15 @@ def main():
         streams = flowsheet.MaterialStreams
         stream1 = streams.Add("Metanol_Entrada")
 
-        # IMPORTANTE: Especificar composición PRIMERO (antes de T/P/F)
-        # HYSYS necesita saber qué componentes están presentes antes de calcular propiedades
-        # ComponentMolarFraction.Values devuelve una TUPLA (inmutable)
-        # Debemos convertirla a lista, modificarla, y reasignarla
-        comp_frac_tuple = stream1.ComponentMolarFraction.Values
-        comp_frac = list(comp_frac_tuple)  # Convertir tupla a lista
-        comp_frac[0] = 1.0  # 100% Methanol (índice 0)
-        stream1.ComponentMolarFraction.Values = comp_frac  # Reasignar lista
+        # Asignar FluidPackage a la corriente (asegura que sepa qué componentes esperar)
+        stream1.FluidPackage = fluid_pkg
+
+        # Especificar composición PRIMERO (antes de T/P/F)
+        # Values devuelve tupla -> convertir a lista -> modificar -> volver a tupla
+        current_values = stream1.ComponentMolarFraction.Values
+        comp_frac_list = list(current_values)
+        comp_frac_list[0] = 1.0  # 100% Methanol
+        stream1.ComponentMolarFraction.Values = tuple(comp_frac_list)
 
         # Ahora especificar condiciones termodinámicas (después de composición)
         stream1.TemperatureValue = 25 + 273.15  # K
