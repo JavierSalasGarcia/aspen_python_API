@@ -16,34 +16,13 @@ def main():
         case = hysys.SimulationCases.Add()
         print("\n[1/4] HYSYS iniciado y caso creado")
 
-        # Acceder al Flowsheet
-        print("   → Accediendo al Flowsheet...")
-        flowsheet = case.Flowsheet
+        # Acceder al BasisManager (donde viven los componentes y paquetes)
+        print("   → Accediendo al Basis Manager...")
+        basis_manager = case.BasisManager
 
-        print("\n[2/4] Agregando componentes al Basis...")
-        # CLAVE: Los componentes se agregan a la lista GLOBAL del Basis, no al FluidPackage
-        print("   → Accediendo a lista global de componentes (Basis)...")
-        basis_components = flowsheet.Components
-
-        print("   → Agregando Methanol...")
-        try:
-            basis_components.Add("Methanol")
-            print("   ✓ Methanol agregado")
-        except Exception as e:
-            print(f"   ✗ Error al agregar Methanol: {e}")
-
-        print("   → Agregando Water...")
-        try:
-            basis_components.Add("Water")
-            print("   ✓ Water agregado")
-        except Exception as e:
-            print(f"   ✗ Error al agregar Water: {e}")
-
-        print(f"   → Componentes en Basis: {basis_components.Count}")
-
-        print("\n[3/4] Creando Fluid Package...")
-        # Ahora crear el FluidPackage que usará estos componentes
-        fluid_packages = flowsheet.FluidPackages
+        print("\n[2/4] Creando Fluid Package...")
+        # Primero crear el FluidPackage
+        fluid_packages = basis_manager.FluidPackages
 
         if fluid_packages.Count == 0:
             print("   → Creando nuevo FluidPackage...")
@@ -52,22 +31,41 @@ def main():
             print("   → Usando FluidPackage existente...")
             fluid_pkg = fluid_packages.Item(0)
 
-        # Verificar que el FluidPackage ve los componentes
-        print(f"   → Componentes visibles en FluidPackage: {fluid_pkg.Components.Count}")
+        print("\n[3/4] Agregando componentes al FluidPackage...")
+        # Ahora agregar componentes al FluidPackage
+        components = fluid_pkg.Components
+
+        print("   → Agregando Methanol...")
+        try:
+            components.Add("Methanol")
+            print("   ✓ Methanol agregado")
+        except Exception as e:
+            print(f"   ✗ Error al agregar Methanol: {e}")
+
+        print("   → Agregando Water...")
+        try:
+            components.Add("Water")
+            print("   ✓ Water agregado")
+        except Exception as e:
+            print(f"   ✗ Error al agregar Water: {e}")
+
+        print(f"   → Componentes en FluidPackage: {components.Count}")
 
         # Extraer propiedades
         print("\n[4/4] Extrayendo propiedades de componentes...")
 
-        # Usar la lista global de componentes para mostrar propiedades
-        for i in range(basis_components.Count):
-            comp = basis_components.Item(i)
-            print(f"\n   {comp.ComponentName}:")
-            try:
-                print(f"     Tc = {comp.CriticalTemperature:.2f} K")
-                print(f"     Pc = {comp.CriticalPressure:.2f} kPa")
-                print(f"     MW = {comp.MolecularWeight:.2f} g/mol")
-            except Exception as e:
-                print(f"     ⚠ Error al obtener propiedades: {e}")
+        if components.Count == 0:
+            print("   ⚠ No hay componentes en el FluidPackage")
+        else:
+            for i in range(components.Count):
+                comp = components.Item(i)
+                print(f"\n   {comp.ComponentName}:")
+                try:
+                    print(f"     Tc = {comp.CriticalTemperature:.2f} K")
+                    print(f"     Pc = {comp.CriticalPressure:.2f} kPa")
+                    print(f"     MW = {comp.MolecularWeight:.2f} g/mol")
+                except Exception as e:
+                    print(f"     ⚠ Error al obtener propiedades: {e}")
 
         print("\n[5/5] Cerrando...")
         time.sleep(2)
