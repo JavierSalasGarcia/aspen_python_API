@@ -3,7 +3,7 @@ import time
 
 def main():
     print("="*60)
-    print("PRACTICA 2: DEBUG PROPIEDADES DE COMPONENTES")
+    print("PRACTICA 2: COMPONENTES Y PAQUETES")
     print("="*60)
 
     try:
@@ -28,11 +28,15 @@ def main():
         components.Add("H2O")
         print(f"   ✓ H2O agregado (Count: {components.Count})")
 
-        print("\n[3/4] Creando Fluid Package...")
+        comp_count = components.Count
+        print(f"\n   → Total de componentes: {comp_count}")
+
+        print("\n[3/4] Creando Fluid Package y configurando modelo...")
         fluid_pkg = basis_manager.FluidPackages.Add()
 
         # Configurar modelo termodinámico
-        nombres = ["Peng-Robinson", "PR", "SRK"]
+        nombres = ["Peng-Robinson", "PR", "SRK", "Soave-Redlich-Kwong"]
+
         for nombre in nombres:
             try:
                 fluid_pkg.PropertyPackageName = nombre
@@ -42,66 +46,36 @@ def main():
             except:
                 continue
 
-        print("\n[4/4] Explorando estructura del componente...")
+        print("\n[4/4] Extrayendo propiedades de componentes...")
 
-        # Tomar el primer componente (Methanol)
-        comp = components.Item(0)
-        print(f"\n   Componente: {comp.Name}")
+        for i in range(comp_count):
+            comp = components.Item(i)
+            print(f"\n   Componente: {comp.Name}")
 
-        print("\n   Propiedades disponibles:")
-        for attr in dir(comp):
-            if not attr.startswith('_'):
-                print(f"      - {attr}")
-
-        print("\n   Intentando acceder a propiedades termodinámicas:")
-
-        # Probar diferentes formas de acceder
-        propiedades_a_probar = [
-            ("comp.CriticalTemperature", lambda: comp.CriticalTemperature),
-            ("comp.MolecularWeight", lambda: comp.MolecularWeight),
-            ("comp.CriticalPressure", lambda: comp.CriticalPressure),
-        ]
-
-        for nombre_prop, getter in propiedades_a_probar:
             try:
-                valor = getter()
-                print(f"\n   {nombre_prop}:")
-                print(f"      Tipo: {type(valor)}")
-                print(f"      Valor directo: {valor}")
+                # Las propiedades son objetos COM, usar .GetValue() para obtener el float
+                tc = comp.CriticalTemperature.GetValue()
+                pc = comp.CriticalPressure.GetValue()
+                mw = comp.MolecularWeight.GetValue()
 
-                # Si es CDispatch, explorar sus propiedades
-                if hasattr(valor, '_oleobj_'):
-                    print(f"      Es objeto COM, explorando...")
-                    for attr in dir(valor):
-                        if not attr.startswith('_') and attr[0].isupper():
-                            print(f"         - {attr}")
-
-                    # Intentar acceder a GetValue si existe
-                    if hasattr(valor, 'GetValue'):
-                        try:
-                            val = valor.GetValue()
-                            print(f"      GetValue(): {val} (tipo: {type(val)})")
-                        except:
-                            pass
-
-                    # Intentar acceder a Value si existe
-                    if hasattr(valor, 'Value'):
-                        try:
-                            val = valor.Value
-                            print(f"      Value: {val} (tipo: {type(val)})")
-                        except:
-                            pass
-
-            except Exception as e:
-                print(f"\n   ✗ Error con {nombre_prop}: {e}")
+                print(f"     Tc = {tc:.2f} °C")
+                print(f"     Pc = {pc:.2f} kPa")
+                print(f"     MW = {mw:.2f} g/mol")
+            except Exception as prop_err:
+                print(f"     ⚠ Error leyendo propiedades: {prop_err}")
 
         print("\n[5/5] Cerrando...")
-        time.sleep(3)
+        time.sleep(2)
         hysys.Quit()
+
+        print("\n" + "="*60)
+        print("✓ PRACTICA 2 COMPLETADA CON ÉXITO!")
         print("="*60)
+        print("\nPróxima: Practica 3 - Corrientes")
 
     except Exception as e:
-        print(f"\n✗ ERROR FATAL: {e}")
+        print(f"\n✗ ERROR: {e}")
+        print(f"   Tipo: {type(e).__name__}")
         import traceback
         traceback.print_exc()
 
