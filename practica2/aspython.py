@@ -13,29 +13,45 @@ def main():
         basis_manager = case.BasisManager
 
         print("\n[1/4] Creando Component List...")
-        # Acceder a ComponentLists y crear una nueva lista
         comp_lists = basis_manager.ComponentLists
         comp_list = comp_lists.Add()
         print("   ✓ Component List creada")
 
-        # La jerarquía correcta es: comp_list.Components.Add()
         components = comp_list.Components
 
         print("\n[2/4] Agregando componentes...")
+
+        # Methanol funciona
         print("   → Agregando Methanol...")
         components.Add("Methanol")
+        print(f"   ✓ Methanol agregado (Count: {components.Count})")
 
-        print("   → Agregando Water...")
-        components.Add("Water")
+        # Probar diferentes nombres para Water
+        print("   → Agregando Water (probando variantes)...")
+        nombres_water = ["H2O", "Water", "WATER", "H20", "water"]
 
-        # Verificar cuántos componentes hay
+        water_agregado = False
+        for nombre in nombres_water:
+            try:
+                print(f"      Intentando: '{nombre}'...")
+                components.Add(nombre)
+                print(f"   ✓ Water agregado como '{nombre}' (Count: {components.Count})")
+                water_agregado = True
+                break
+            except Exception as e:
+                print(f"      ✗ '{nombre}' no funciona")
+                continue
+
+        if not water_agregado:
+            print("   ⚠ No se pudo agregar Water con ningún nombre conocido")
+
         comp_count = components.Count
-        print(f"   ✓ Componentes agregados: {comp_count}")
+        print(f"\n   → Total de componentes: {comp_count}")
 
         print("\n[3/4] Creando Fluid Package y configurando modelo...")
         fluid_pkg = basis_manager.FluidPackages.Add()
 
-        # Configurar modelo termodinámico (sabemos que SRK funciona en tu versión)
+        # Configurar modelo termodinámico
         nombres = ["Peng-Robinson", "PR", "SRK", "Soave-Redlich-Kwong"]
 
         for nombre in nombres:
