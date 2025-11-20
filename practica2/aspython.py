@@ -60,7 +60,7 @@ def main():
 
         print("\n[5/5] Cerrando...")
         time.sleep(2)
-        case.SaveRequired = False
+        # No guardar cambios al cerrar
         hysys.Quit()
 
         print("\n" + "="*60)
