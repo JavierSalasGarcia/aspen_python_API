@@ -47,7 +47,8 @@ def check_pywin32():
 
         try:
             import win32api
-            print(f"✓ pywin32 build: {win32api.GetFileVersionInfo(win32api.__file__, '\\\\')}")
+            version_info = win32api.GetFileVersionInfo(win32api.__file__, '\\\\')
+            print(f"✓ pywin32 build: {version_info}")
         except:
             print("✓ pywin32 instalado (versión no disponible)")
 
