@@ -3,7 +3,7 @@ import time
 
 def main():
     print("="*60)
-    print("PRACTICA 2: COMPONENTES Y PAQUETES (FINAL)")
+    print("PRACTICA 2: COMPONENTES Y PAQUETES (DEBUG API)")
     print("="*60)
 
     try:
@@ -12,66 +12,93 @@ def main():
         case = hysys.SimulationCases.Add()
         basis_manager = case.BasisManager
 
-        print("\n[1/4] Creando Fluid Package...")
-        fluid_pkg = basis_manager.FluidPackages.Add()
+        print("\n[DEBUG] Explorando estructura del BasisManager...")
 
-        # --- CORRECCIÓN 1: Usar ComponentList ---
-        print("   → Accediendo a la lista de componentes interna...")
-        # No usamos .Components, usamos .ComponentList
-        comp_list = fluid_pkg.ComponentList
+        # Intentar diferentes rutas para agregar componentes
+        print("\n[Intento 1] Buscando lista global de componentes...")
+        try:
+            # Muchas versiones de HYSYS tienen Components directamente en BasisManager
+            global_comps = basis_manager.Components
+            print(f"   ✓ basis_manager.Components accesible")
+            print(f"   → Count actual: {global_comps.Count}")
 
-        print("   → Agregando Methanol...")
-        comp_list.Add("Methanol")
+            print("\n   → Intentando agregar Methanol a lista global...")
+            global_comps.Add("Methanol")
+            print(f"   → Count después de Methanol: {global_comps.Count}")
 
-        print("   → Agregando Water...")
-        comp_list.Add("Water")
+            print("   → Intentando agregar Water a lista global...")
+            global_comps.Add("Water")
+            print(f"   → Count después de Water: {global_comps.Count}")
 
-        # Verificamos el contador en la lista, no en el paquete
-        print(f"   ✓ Componentes en la lista: {comp_list.Count}")
+            # Si llegamos aquí, funcionó
+            if global_comps.Count > 0:
+                print("\n   ✓ ÉXITO: Componentes agregados a lista global")
 
-        print("\n[2/4] Configurando Modelo Termodinámico...")
-        # Tu código de "Fuerza Bruta" que funcionó bien:
-        nombres = ["Peng-Robinson", "PR", "SRK", "Soave-Redlich-Kwong"]
-        asignado = False
+                # Ahora crear el FluidPackage
+                print("\n[2/4] Creando Fluid Package...")
+                fluid_pkg = basis_manager.FluidPackages.Add()
 
-        for nombre in nombres:
+                print("\n[3/4] Configurando Modelo Termodinámico...")
+                nombres = ["Peng-Robinson", "PR", "SRK", "Soave-Redlich-Kwong"]
+
+                for nombre in nombres:
+                    try:
+                        fluid_pkg.PropertyPackageName = nombre
+                        if fluid_pkg.PropertyPackageName == nombre:
+                            print(f"   ✓ Modelo asignado: {nombre}")
+                            break
+                    except:
+                        continue
+
+                print("\n[4/4] Extrayendo propiedades...")
+
+                for i in range(global_comps.Count):
+                    comp = global_comps.Item(i)
+                    print(f"\n   Componente: {comp.Name}")
+
+                    try:
+                        print(f"     Tc: {comp.CriticalTemperature} K")
+                        print(f"     Pc: {comp.CriticalPressure} kPa")
+                        print(f"     MW: {comp.MolecularWeight}")
+                    except Exception as prop_err:
+                        print(f"     ⚠ Error leyendo propiedades: {prop_err}")
+
+                print("\n✓ PRACTICA 2 COMPLETADA CON ÉXITO")
+
+        except AttributeError as e:
+            print(f"   ✗ basis_manager.Components no existe: {e}")
+            print("\n   Probando rutas alternativas...")
+
+            # Intentar con CurrentCase
             try:
-                fluid_pkg.PropertyPackageName = nombre
-                if fluid_pkg.PropertyPackageName == nombre:
-                    print(f"   ✓ Modelo asignado: {nombre}")
-                    asignado = True
-                    break
-            except:
-                continue
+                print("\n[Intento 2] Usando Flowsheet.Basis...")
+                flowsheet = case.Flowsheet
+                basis = flowsheet.Basis
+                comps = basis.Components
+                print(f"   ✓ flowsheet.Basis.Components accesible")
+                comps.Add("Methanol")
+                comps.Add("Water")
+                print(f"   ✓ Componentes agregados: {comps.Count}")
+            except Exception as e2:
+                print(f"   ✗ También falló: {e2}")
 
-        print("\n[3/4] Extrayendo propiedades...")
-        # Usamos la lista para iterar
-        count = comp_list.Count
+                # Último intento
+                print("\n[Intento 3] Listando propiedades disponibles...")
+                print("   Propiedades de basis_manager:")
+                for attr in dir(basis_manager):
+                    if not attr.startswith('_'):
+                        print(f"      - {attr}")
 
-        for i in range(count):
-            # --- CORRECCIÓN 2: Propiedades correctas ---
-            comp = comp_list.Item(i)
-
-            # La propiedad es .Name, no .ComponentName
-            print(f"\n   Componente: {comp.Name}")
-
-            try:
-                # Nota: A veces las propiedades directas como CriticalTemperature
-                # pueden fallar dependiendo de la versión. Si fallan, avísame.
-                print(f"     Tc: {comp.CriticalTemperature} K")
-                print(f"     Pc: {comp.CriticalPressure} kPa")
-                print(f"     MW: {comp.MolecularWeight}")
-            except Exception as prop_err:
-                print(f"     ⚠ No se pudieron leer detalles físicos: {prop_err}")
-
-        print("\n[4/4] Cerrando con éxito...")
+        print("\n[5/5] Cerrando...")
         time.sleep(2)
         hysys.Quit()
         print("="*60)
 
     except Exception as e:
         print(f"\n✗ ERROR FATAL: {e}")
-        # Si falla, intentamos cerrar HYSYS para no dejar procesos colgados
+        import traceback
+        traceback.print_exc()
+
         try:
             hysys.Quit()
         except:
