@@ -48,19 +48,42 @@ def main():
 
         print("\n[3/4] Configurando Modelo Termodinámico...")
 
-        # PASO CRITICO: Asignar el modelo antes de leerlo.
-        # "Peng-Robinson" es la cadena estándar para este modelo.
-        try:
-            print("   → Asignando Peng-Robinson...")
-            fluid_pkg.PropertyPackageName = "Peng-Robinson"
-        except Exception as e:
-            print(f"   ⚠ No se pudo asignar el modelo directamente: {e}")
+        # Lista de variantes comunes del nombre en distintas versiones de HYSYS
+        # El orden importa: HYSYS suele preferir "Peng-Robinson" o "Peng Robinson"
+        posibles_nombres = [
+            "Peng-Robinson",      # Estándar más común
+            "Peng Robinson",      # Sin guion
+            "PR",                 # Abreviatura
+            "Peng-Robinson EOS",  # Nombre largo
+            "Soave-Redlich-Kwong", # Alternativa si PR falla (para probar)
+            "SRK"
+        ]
 
-        # Ahora que ya tiene un valor, sí podemos leerlo (o confirmar que se asignó)
+        modelo_asignado = False
+
+        for nombre in posibles_nombres:
+            try:
+                print(f"   → Intentando asignar: '{nombre}'...")
+                fluid_pkg.PropertyPackageName = nombre
+
+                # Si no falla la línea anterior, verificamos que se haya guardado
+                if fluid_pkg.PropertyPackageName == nombre:
+                    print(f"   ✓ ÉXITO: Modelo asignado correctamente: {nombre}")
+                    modelo_asignado = True
+                    break
+            except Exception:
+                # Si falla, simplemente continuamos al siguiente nombre
+                continue
+
+        if not modelo_asignado:
+            print("   ⚠ ADVERTENCIA: No se pudo asignar ningún modelo automáticamente.")
+            print("   → Se usará el modelo por defecto de HYSYS (si existe).")
+
+        # Intentar leer el modelo final
         try:
-            print(f"   → Paquete configurado: {fluid_pkg.PropertyPackageName}")
+            print(f"   → Estado final del paquete: {fluid_pkg.PropertyPackageName}")
         except:
-            print("   → Paquete configurado (pero no se pudo leer el nombre vía COM)")
+            pass
 
         # Extraer propiedades
         print("\n[4/4] Extrayendo propiedades de componentes...")
