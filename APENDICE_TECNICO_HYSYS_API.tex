@@ -349,13 +349,16 @@ streams = flowsheet.MaterialStreams
 # Crear corriente
 stream1 = streams.Add("Entrada_Metanol")
 
-# Especificar composicion
-stream1.ComponentMolarFractionValue("Methanol", 1.0)
-
-# Especificar condiciones (asignacion directa)
+# Especificar condiciones termodinamicas PRIMERO
 stream1.TemperatureValue = 25 + 273.15  # K
 stream1.PressureValue = 101.325          # kPa
 stream1.MolarFlowValue = 100.0           # kgmole/h
+
+# Especificar composicion usando ComponentMolarFraction.Values
+# IMPORTANTE: ComponentMolarFractionValue NO es callable con 2 params
+comp_frac = stream1.ComponentMolarFraction.Values
+comp_frac[0] = 1.0  # 100% primer componente (Methanol)
+stream1.ComponentMolarFraction.Values = comp_frac
 
 # Leer propiedades (requiere GetValue())
 T = stream1.TemperatureValue.GetValue() - 273.15
@@ -364,11 +367,18 @@ F = stream1.MolarFlowValue.GetValue()
 rho = stream1.DensityValue.GetValue()  # Calculada
 \end{lstlisting}
 
+\begin{warningbox}
+\textbf{ERROR COMUN:} NO usar \texttt{ComponentMolarFractionValue("Methanol", 1.0)}
+\\Esto causa error: \texttt{'tuple' object is not callable}
+\end{warningbox}
+
 \begin{infobox}
 \textbf{Hallazgo:}
 \begin{itemize}
-    \item \textbf{Escritura:} Asignación directa sin \texttt{.SetValue()}
+    \item \textbf{Composicion:} Usar \texttt{ComponentMolarFraction.Values} (array)
+    \item \textbf{Escritura T/P/F:} Asignacion directa sin \texttt{.SetValue()}
     \item \textbf{Lectura:} Requiere \texttt{.GetValue()} para obtener \texttt{float}
+    \item \textbf{Indices:} El array sigue el orden de agregacion de componentes
 \end{itemize}
 \end{infobox}
 
@@ -505,10 +515,14 @@ def main():
         streams = flowsheet.MaterialStreams
         stream1 = streams.Add("S1")
 
-        stream1.ComponentMolarFractionValue("Methanol", 1.0)
         stream1.TemperatureValue = 298.15  # K
         stream1.PressureValue = 101.325     # kPa
         stream1.MolarFlowValue = 100.0      # kgmole/h
+
+        # Composicion (usar array, no metodo con 2 params)
+        comp_frac = stream1.ComponentMolarFraction.Values
+        comp_frac[0] = 1.0  # 100% Methanol
+        stream1.ComponentMolarFraction.Values = comp_frac
 
         time.sleep(2)  # Esperar calculos
 
