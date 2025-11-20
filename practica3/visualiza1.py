@@ -13,6 +13,7 @@ Fecha: 2025-01-15
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
+import os
 
 def main():
     """Genera visualización de corrientes desde ASPEN"""
@@ -193,7 +194,8 @@ def main():
     plt.tight_layout()
 
     # Guardar
-    output_file = '/home/user/aspen_python_API/practica3/corriente_aspen.png'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_file = os.path.join(script_dir, 'corriente_aspen.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"\n✓ Gráfica guardada: {output_file}")
 

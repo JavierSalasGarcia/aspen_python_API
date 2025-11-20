@@ -34,7 +34,8 @@ def main():
     }
 
     # Datos de Python (cargar si existe)
-    json_file = '/home/user/aspen_python_API/practica3/resultados_python.json'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    json_file = os.path.join(script_dir, 'resultados_python.json')
     if os.path.exists(json_file):
         try:
             with open(json_file, 'r') as f:
@@ -254,7 +255,7 @@ def main():
     plt.tight_layout()
 
     # Guardar
-    output_file = '/home/user/aspen_python_API/practica3/comparacion_corrientes.png'
+    output_file = os.path.join(script_dir, 'comparacion_corrientes.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"\n✓ Gráfica guardada: {output_file}")
 

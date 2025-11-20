@@ -34,7 +34,8 @@ def main():
     }
 
     # Intentar cargar datos guardados
-    json_file = '/home/user/aspen_python_API/practica2/resultados_python.json'
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    json_file = os.path.join(script_dir, 'resultados_python.json')
     if os.path.exists(json_file):
         try:
             with open(json_file, 'r') as f:
@@ -192,7 +193,7 @@ def main():
              bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.3))
 
     # Guardar
-    output_file = '/home/user/aspen_python_API/practica2/comparacion_python_aspen.png'
+    output_file = os.path.join(script_dir, 'comparacion_python_aspen.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"\n✓ Gráfica guardada: {output_file}")
 
