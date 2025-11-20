@@ -40,11 +40,19 @@ def main():
         streams = flowsheet.MaterialStreams
         stream1 = streams.Add("Metanol_Entrada")
 
-        # Especificar propiedades
-        stream1.ComponentMolarFractionValue("Methanol", 1.0)
+        # Especificar condiciones termodinámicas PRIMERO
         stream1.TemperatureValue = 25 + 273.15  # K
         stream1.PressureValue = 101.325          # kPa
         stream1.MolarFlowValue = 100.0           # kgmole/h
+
+        # Especificar composición usando ComponentMolarFraction.Values
+        # NOTA: ComponentMolarFractionValue NO es un método callable con 2 params
+        # El patrón correcto es acceder primero al objeto, luego establecer el valor
+        comp_frac = stream1.ComponentMolarFraction.Values
+        # El array tiene tantos elementos como componentes haya en la lista
+        # En este caso solo tenemos Methanol (índice 0)
+        comp_frac[0] = 1.0  # 100% Methanol
+        stream1.ComponentMolarFraction.Values = comp_frac
 
         # Esperar cálculos
         time.sleep(2)
