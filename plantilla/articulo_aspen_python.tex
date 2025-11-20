@@ -1,6 +1,17 @@
 \documentclass{syx7}
 
 % ============================================================================
+% SOLUCIÓN A CONFLICTOS DE PAQUETES
+% ============================================================================
+% IMPORTANTE: Estos comandos deben estar ANTES de cargar cualquier paquete
+% para prevenir conflictos con amsthm y biblatex que la clase syx7 carga internamente
+\let\openbox\relax
+\let\c@author\relax
+\let\not=\relax
+\let\not<\relax
+\let\not>\relax
+
+% ============================================================================
 % PAQUETES NECESARIOS
 % ============================================================================
 \usepackage{amsmath}
@@ -12,20 +23,9 @@
 \usepackage{epsfig}
 \usepackage{epstopdf}
 \usepackage[ruled,vlined]{algorithm2e}
-\usepackage{booktabs}
-
-% Solución a conflictos de paquetes cargados por la clase
-\let\openbox\relax
-\let\c@author\relax
 
 % Configuración de idioma
 \usepackage[spanish]{babel}
-
-% Configuración de fuentes (para XeLaTeX)
-\usepackage{fontspec}
-\usepackage{unicode-math}
-\setmainfont{Latin Modern Roman}
-\setmathfont{Latin Modern Math}
 
 % ============================================================================
 % CONFIGURACIÓN DE GEOMETRÍA
@@ -50,6 +50,20 @@
 
 \usepackage{etoolbox}
 \patchcmd{\bibsetup}{\begingroup}{\begingroup\let\clearpage\relax}{}{}
+
+% ============================================================================
+% CONFIGURACIÓN DE HYPERREF (Enlaces y Citas)
+% ============================================================================
+% Configurar hipervínculos: citas en azul sin recuadro, enlaces internos en negro
+\hypersetup{
+	colorlinks=true,        % Activar colores en lugar de recuadros
+	linkcolor=black,        % Color de enlaces internos (secciones, figuras, etc.)
+	citecolor=blue,         % Color de citas bibliográficas en AZUL
+	urlcolor=blue,          % Color de URLs
+	filecolor=blue,         % Color de enlaces a archivos
+	pdfborder={0 0 0},      % Sin borde en los enlaces
+	breaklinks=true         % Permitir saltos de línea en enlaces largos
+}
 
 % ============================================================================
 % CONFIGURACIÓN DE CÓDIGO PYTHON (OPCIONAL)
@@ -132,6 +146,10 @@ donde FAME representa ésteres metílicos de ácidos grasos. El proceso industri
 % METODOLOGÍA
 % ============================================================================
 \section{Metodología}
+
+\subsection{Configuración del Entorno de Desarrollo}
+
+Para garantizar reproducibilidad y evitar conflictos de versiones, se recomienda utilizar entornos virtuales. Se proporciona un archivo \texttt{requirements.txt} con las versiones específicas de todas las dependencias. El proceso de instalación consiste en descargar e instalar Miniconda desde el sitio oficial, crear un entorno virtual aislado denominado \texttt{entornoAsPy} con Python 3.10, activar el entorno mediante el comando \texttt{conda activate entornoAsPy}, e instalar las dependencias desde el archivo \texttt{requirements.txt} utilizando \texttt{pip install -r requirements.txt}. Las librerías principales incluyen pywin32 para acceso a COM API, numpy y scipy \cite{virtanen2020scipy} para cálculos numéricos, matplotlib \cite{hunter2007matplotlib} para visualización, thermo y chemicals \cite{thermo2023,chemicals2023} para propiedades termodinámicas, y CoolProp \cite{bell2016coolprop} para ecuaciones de estado de alta precisión. La verificación de la instalación se realiza importando las librerías principales y confirmando que no se generan errores. Esta configuración con entorno virtual aislado previene incompatibilidades con otras instalaciones de Python en el sistema y facilita la portabilidad del código entre diferentes máquinas.
 
 \subsection{Estructura del Repositorio}
 
