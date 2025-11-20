@@ -15,8 +15,12 @@
 # ============================================================================
 # Librerías de Termodinámica y Propiedades Químicas
 # ============================================================================
-thermo==0.2.20           # Cálculos termodinámicos y de equilibrio de fases
-chemicals==1.1.4         # Base de datos de 20,000+ compuestos químicos
+# IMPORTANTE: Las versiones de thermo y chemicals deben ser compatibles
+# Si hay error "cannot import name 'log' from 'chemicals.utils'":
+#   pip uninstall thermo chemicals -y
+#   pip install thermo chemicals --upgrade
+thermo>=0.3.0            # Cálculos termodinámicos y de equilibrio de fases
+chemicals>=1.2.0         # Base de datos de 20,000+ compuestos químicos
 CoolProp==6.4.3          # Ecuaciones de estado de alta precisión
 
 # ============================================================================

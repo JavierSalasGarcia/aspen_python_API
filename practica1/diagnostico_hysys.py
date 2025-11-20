@@ -35,9 +35,45 @@ def check_python_version():
         print("\n⚠️  ADVERTENCIA: Estás usando Python 32-bit")
         print("   Si HYSYS es 64-bit, necesitas Python 64-bit")
 
+def check_scientific_libraries():
+    """Verifica la instalación de librerías científicas"""
+    print_section("2. VERIFICACIÓN DE LIBRERÍAS CIENTÍFICAS")
+
+    libraries = {
+        'thermo': 'Propiedades termodinámicas',
+        'chemicals': 'Base de datos de compuestos',
+        'CoolProp': 'Ecuaciones de estado',
+        'numpy': 'Álgebra lineal',
+        'scipy': 'Computación científica',
+        'pandas': 'Análisis de datos',
+        'matplotlib': 'Visualización'
+    }
+
+    missing = []
+
+    for lib, description in libraries.items():
+        try:
+            __import__(lib)
+            print(f"   ✓ {lib:12s} (instalada) - {description}")
+        except ImportError:
+            print(f"   ✗ {lib:12s} (no instalada) - {description}")
+            missing.append(lib)
+
+    if missing:
+        print(f"\n   ⚠️  Librerías faltantes: {', '.join(missing)}")
+        print("\n   SOLUCIÓN:")
+        print("   pip install -r requirements.txt")
+        print("\n   Si 'thermo' falla específicamente, prueba:")
+        print("   pip install thermo --no-deps")
+        print("   pip install chemicals numpy scipy pandas")
+        return False
+    else:
+        print("\n   ✓ Todas las librerías científicas están instaladas")
+        return True
+
 def check_pywin32():
     """Verifica la instalación de pywin32"""
-    print_section("2. VERIFICACIÓN DE PYWIN32")
+    print_section("3. VERIFICACIÓN DE PYWIN32")
 
     try:
         import win32com.client
@@ -63,7 +99,7 @@ def check_pywin32():
 
 def check_hysys_registry():
     """Verifica el registro de Windows para HYSYS"""
-    print_section("3. VERIFICACIÓN DEL REGISTRO DE WINDOWS")
+    print_section("4. VERIFICACIÓN DEL REGISTRO DE WINDOWS")
 
     try:
         import winreg
@@ -102,7 +138,7 @@ def check_hysys_registry():
 
 def try_hysys_connection():
     """Intenta conectar con HYSYS usando diferentes métodos"""
-    print_section("4. INTENTOS DE CONEXIÓN CON HYSYS")
+    print_section("5. INTENTOS DE CONEXIÓN CON HYSYS")
 
     try:
         import win32com.client
@@ -203,6 +239,7 @@ def main():
 
     print("\nEste script verificará:")
     print("  • Versión de Python y arquitectura")
+    print("  • Librerías científicas (thermo, numpy, pandas, etc.)")
     print("  • Instalación de pywin32")
     print("  • Registro de HYSYS en Windows")
     print("  • Diferentes métodos de conexión COM")
@@ -211,6 +248,7 @@ def main():
 
     # Ejecutar verificaciones
     check_python_version()
+    check_scientific_libraries()
 
     pywin32_ok = check_pywin32()
     if not pywin32_ok:
