@@ -51,12 +51,21 @@ def main():
 
         # Extraer propiedades
         print("\n[4/4] Extrayendo propiedades de componentes...")
-        for i in range(components.Count):
-            comp = components.Item(i)
-            print(f"\n   {comp.ComponentName}:")
-            print(f"     Tc = {comp.CriticalTemperature:.2f} K")
-            print(f"     Pc = {comp.CriticalPressure:.2f} kPa")
-            print(f"     MW = {comp.MolecularWeight:.2f} g/mol")
+        comp_count = components.Count
+        print(f"   → Número de componentes: {comp_count}")
+
+        if comp_count == 0:
+            print("   ⚠ No hay componentes en el FluidPackage")
+        else:
+            for i in range(comp_count):
+                comp = components.Item(i)
+                print(f"\n   {comp.ComponentName}:")
+                try:
+                    print(f"     Tc = {comp.CriticalTemperature:.2f} K")
+                    print(f"     Pc = {comp.CriticalPressure:.2f} kPa")
+                    print(f"     MW = {comp.MolecularWeight:.2f} g/mol")
+                except Exception as e:
+                    print(f"     ⚠ Error al obtener propiedades: {e}")
 
         print("\n[5/5] Cerrando...")
         time.sleep(2)
